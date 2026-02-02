@@ -1,0 +1,108 @@
+package repository
+
+import (
+	"errors"
+
+	"github.com/imakheri/notifications-thch/internal/domain/entities"
+	"github.com/imakheri/notifications-thch/internal/domain/gateway"
+	"gorm.io/gorm"
+)
+
+type NotificationRepository struct {
+	db_connection *gorm.DB
+}
+
+func NewNotificationRepository(db *gorm.DB) gateway.NotificationRepository {
+	return &NotificationRepository{
+		db_connection: db,
+	}
+}
+
+func (nr *NotificationRepository) CreateNotification(userID uint, notification entities.Notification) (entities.Notification, error) {
+	var user entities.User
+	result := Database().First(&user, userID)
+	if result.Error != nil {
+		return entities.Notification{}, errors.New("notification not found")
+	}
+
+	if ok, err := areRecipientsValid(userID, notification); !ok {
+		return entities.Notification{}, err
+	}
+
+	notification.CreatedBy = userID
+	result = Database().Create(&notification)
+	if result.Error != nil {
+		return entities.Notification{}, result.Error
+	}
+	return notification, nil
+}
+
+func (nr *NotificationRepository) GetNotificationsByUser(userID uint) ([]entities.Notification, error) {
+	var notifications []entities.Notification
+	result := Database().Find(&notifications, "created_by = ?", userID)
+	if result.Error != nil {
+		return []entities.Notification{}, result.Error
+	}
+	return notifications, nil
+}
+
+func (nr *NotificationRepository) DeleteNotificationByID(notificationID int) (int, error) {
+	result := Database().Delete(&entities.Notification{}, notificationID)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return notificationID, nil
+}
+
+func (nr *NotificationRepository) UpdateNotification(userID uint, notificationID int, notificationDTO entities.Notification) (entities.Notification, error) {
+	var notification entities.Notification
+
+	result := Database().First(&notification, notificationID)
+	if result.Error != nil {
+		return entities.Notification{}, errors.New("notification not found")
+	}
+	if notification.CreatedBy != userID {
+		return entities.Notification{}, errors.New("notification does not belong to user")
+	}
+
+	if len(notificationDTO.Title) <= 0 {
+		notificationDTO.Title = notification.Title
+	} else {
+		notification.Title = notificationDTO.Title
+	}
+	if len(notificationDTO.Content) <= 0 {
+		notificationDTO.Content = notification.Content
+	} else {
+		notification.Content = notificationDTO.Content
+	}
+	if len(notificationDTO.Channels) <= 0 {
+		notificationDTO.Channels = notification.Channels
+	} else {
+		notification.Channels = notificationDTO.Channels
+	}
+	if len(notificationDTO.Recipients) <= 0 {
+		notificationDTO.Recipients = notification.Recipients
+	} else {
+		if ok, err := areRecipientsValid(userID, notificationDTO); !ok {
+			return entities.Notification{}, err
+		}
+		notification.Recipients = notificationDTO.Recipients
+	}
+
+	result = Database().Save(&notification)
+	if result.Error != nil {
+		return entities.Notification{}, result.Error
+	}
+
+	return notification, nil
+}
+
+func areRecipientsValid(userID uint, recipients entities.Notification) (bool, error) {
+	for _, recipient := range recipients.Recipients {
+		result := Database().First(&recipient)
+		if result.Error != nil || recipient.ID == userID {
+			return false, errors.New("recipient not valid")
+		}
+	}
+	return true, nil
+}

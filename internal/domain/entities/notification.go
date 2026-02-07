@@ -12,3 +12,8 @@ type Notification struct {
 	Channels   []Channel `gorm:"many2many:notification_channels;" json:"channels"`
 	Recipients []User    `gorm:"many2many:notification_recipients;" json:"recipients"`
 }
+
+type NotificationComponent interface {
+	Validate() error
+	Send() error
+}

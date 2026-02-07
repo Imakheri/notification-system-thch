@@ -13,8 +13,9 @@ var prefix = "/api/v1/"
 
 func main() {
 	router := gin.Default()
+
 	db := repository.Database()
-	repository.Migration()
+
 	userReposiroty := repository.NewUserRepository(db)
 	createUseCase := usecase.NewCreateUser(userReposiroty)
 

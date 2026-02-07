@@ -42,11 +42,16 @@ func checkNotificationProperties(notification entities.Notification) error {
 	if len(notification.Content) == 0 {
 		return errors.New("notification must have content")
 	}
+	if len(notification.Recipients) < 0 {
+		return errors.New("recipients must not be greater than 0")
+	}
 	if len(notification.Channels) < 0 {
 		return errors.New("notification must use at least one channel")
 	}
-	if len(notification.Recipients) < 0 {
-		return errors.New("recipients must not be greater than 0")
+	for _, channel := range notification.Channels {
+		if channel.ID == 0 || channel.ID > 3 {
+			return errors.New("channel do not exists")
+		}
 	}
 	return nil
 }

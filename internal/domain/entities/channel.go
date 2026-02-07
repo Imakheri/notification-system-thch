@@ -7,7 +7,3 @@ type Channel struct {
 	Name          string         `gorm:"type:varchar(50); not null" json:"name"`
 	Notifications []Notification `gorm:"many2many:notification_channels;" json:"notifications"`
 }
-
-type ChannelInterface interface {
-	Validate()
-}

@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -38,12 +37,4 @@ func Database() *gorm.DB {
 		return db
 	}
 
-}
-
-func Migration() {
-	err := Database().AutoMigrate(&entities.User{}, &entities.Channel{}, &entities.Notification{})
-	if err != nil {
-		panic(err)
-		return
-	}
 }

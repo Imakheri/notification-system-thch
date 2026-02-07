@@ -46,7 +46,12 @@ func (nr *NotificationRepository) GetNotificationsByUser(userID uint) ([]entitie
 	return notifications, nil
 }
 
-func (nr *NotificationRepository) DeleteNotificationByID(notificationID int) (int, error) {
+func (nr *NotificationRepository) DeleteNotificationByID(userID uint, notificationID int) (int, error) {
+	_, err := checkNotificationExistsAndBelongsToUser(userID, notificationID)
+	if err != nil {
+		return 0, err
+	}
+
 	result := Database().Delete(&entities.Notification{}, notificationID)
 	if result.Error != nil {
 		return 0, result.Error
@@ -55,14 +60,11 @@ func (nr *NotificationRepository) DeleteNotificationByID(notificationID int) (in
 }
 
 func (nr *NotificationRepository) UpdateNotification(userID uint, notificationID int, notificationDTO entities.Notification) (entities.Notification, error) {
-	var notification entities.Notification
 
-	result := Database().First(&notification, notificationID)
-	if result.Error != nil {
-		return entities.Notification{}, errors.New("notification not found")
-	}
-	if notification.CreatedBy != userID {
-		return entities.Notification{}, errors.New("notification does not belong to user")
+	notification, err := checkNotificationExistsAndBelongsToUser(userID, notificationID)
+
+	if err != nil {
+		return entities.Notification{}, err
 	}
 
 	if len(notificationDTO.Title) <= 0 {
@@ -89,7 +91,7 @@ func (nr *NotificationRepository) UpdateNotification(userID uint, notificationID
 		notification.Recipients = notificationDTO.Recipients
 	}
 
-	result = Database().Save(&notification)
+	result := Database().Save(&notification)
 	if result.Error != nil {
 		return entities.Notification{}, result.Error
 	}
@@ -105,4 +107,16 @@ func areRecipientsValid(userID uint, recipients entities.Notification) (bool, er
 		}
 	}
 	return true, nil
+}
+
+func checkNotificationExistsAndBelongsToUser(userID uint, notificationID int) (entities.Notification, error) {
+	var notification entities.Notification
+	result := Database().First(&notification, notificationID)
+	if result.Error != nil {
+		return notification, errors.New("notification not found")
+	}
+	if notification.CreatedBy != userID {
+		return notification, errors.New("notification does not belong to user")
+	}
+	return notification, nil
 }

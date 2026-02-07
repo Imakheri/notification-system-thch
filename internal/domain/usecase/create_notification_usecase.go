@@ -50,7 +50,7 @@ func checkNotificationProperties(notification entities.Notification) error {
 	}
 	for _, channel := range notification.Channels {
 		if channel.ID == 0 || channel.ID > 3 {
-			return errors.New("channel do not exists")
+			return errors.New("mush enter a valid channel")
 		}
 	}
 	return nil

@@ -6,5 +6,5 @@ type NotificationRepository interface {
 	CreateNotification(uint, entities.Notification) (entities.Notification, error)
 	GetNotificationsByUser(uint) ([]entities.Notification, error)
 	UpdateNotification(userID uint, notificationID int, notification entities.Notification) (entities.Notification, error)
-	DeleteNotificationByID(notificationID int) (int, error)
+	DeleteNotificationByID(userID uint, notificationID int) (int, error)
 }

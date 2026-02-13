@@ -2,22 +2,37 @@ package channels
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 )
 
-type SMSNotification struct {
-	entities.Notification
-	Wrapped        entities.NotificationComponent
-	RecipientPhone string
+type SMSStrategy struct{}
+
+func NewSMSStrategy() entities.NotificationStrategy {
+	return &SMSStrategy{}
 }
 
-func (s SMSNotification) Validate() error {
-	if len(s.RecipientPhone) <= 0 {
-		return errors.New("recipient has to have registered a phone number")
+func (ss *SMSStrategy) validate(user entities.User) error {
+	if len(user.Phone) <= 0 {
+		return errors.New("user must have a phone number")
 	}
-	if len(s.RecipientPhone) < 10 {
-		return errors.New("recipient phone must have at least 10 digits")
+	if len(user.Phone) < 11 {
+		return errors.New("invalid phone number")
 	}
+	_, err := strconv.Atoi(user.Phone)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ss *SMSStrategy) Send(user entities.User, notification entities.Notification) error {
+	err := ss.validate(user)
+	if err != nil {
+		return err
+	}
+	fmt.Println("sending via sms")
 	return nil
 }

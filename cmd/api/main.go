@@ -16,23 +16,23 @@ func main() {
 
 	db := repository.Database()
 
-	userReposiroty := repository.NewUserRepository(db)
-	createUseCase := usecase.NewCreateUser(userReposiroty)
+	userRepository := repository.NewUserRepository(db)
+	createUseCase := usecase.NewCreateUser(userRepository)
 
 	router.POST(prefix+"/users", handlers.CreateUserHandler(createUseCase))
-	getUserUseCase := usecase.NewGetUser(userReposiroty)
+	getUserUseCase := usecase.NewGetUser(userRepository)
 	router.POST(prefix+"/user", handlers.GetUserHandler(getUserUseCase))
 
 	//CREATE
 	notificationRepo := repository.NewNotificationRepository(db)
-	createNotificationUseCase := usecase.NewCreateNotificationUseCase(notificationRepo)
+	createNotificationUseCase := usecase.NewCreateNotificationUseCase(notificationRepo, userRepository)
 	router.POST(prefix+"/notification", middleware.AuthorizeJWT(), handlers.CreateNotificationHandler(createNotificationUseCase))
 
 	getNotificationsByUserUseCase := usecase.NewGetNotificationsByUserUseCase(notificationRepo)
 	//READ
 	router.GET(prefix+"/notifications", middleware.AuthorizeJWT(), handlers.GetNotificationsByUserIDHandler(getNotificationsByUserUseCase))
 	//UPDATE
-	updateNotificationUseCase := usecase.NewUpdateNotificationUseCase(notificationRepo)
+	updateNotificationUseCase := usecase.NewUpdateNotificationUseCase(notificationRepo, userRepository)
 	router.PUT(prefix+"/notification/:id", middleware.AuthorizeJWT(), handlers.UpdateNotificationHandler(updateNotificationUseCase))
 	//DELETE
 	deleteNotificationUsecase := usecase.NewDeleteNotification(notificationRepo)

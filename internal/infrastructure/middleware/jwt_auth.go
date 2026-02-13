@@ -26,6 +26,7 @@ func AuthorizeJWT() gin.HandlerFunc {
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			ctx.Set("id", uint(claims["id"].(float64)))
+			ctx.Set("email", claims["email"].(string))
 		} else {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 		}

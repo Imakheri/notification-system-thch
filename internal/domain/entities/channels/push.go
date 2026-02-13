@@ -2,20 +2,29 @@ package channels
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 )
 
-type PushNotification struct {
-	entities.Notification
-	Wrapped     entities.NotificationComponent
-	DeviceToken string
-	Platform    string
+type PushStrategy struct{}
+
+func NewPushStrategy() entities.NotificationStrategy {
+	return &PushStrategy{}
 }
 
-func (p *PushNotification) Validate() error {
-	if len(p.DeviceToken) <= 0 {
-		return errors.New("recipient user has to have a registered device")
+func (ps *PushStrategy) validate(user entities.User) error {
+	if len(user.DeviceToken) > 0 {
+		return errors.New("user must have a device token")
 	}
+	return nil
+}
+
+func (ps *PushStrategy) Send(user entities.User, notification entities.Notification) error {
+	err := ps.validate(user)
+	if err != nil {
+		return err
+	}
+	fmt.Println("sending via push")
 	return nil
 }

@@ -16,7 +16,7 @@ func DeleteNotificationHandler(deleteNotificationUseCase usecase.DeleteNotificat
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "must enter a valid id"})
 		}
 
-		notificationID, err := strconv.Atoi(idParam)
+		notificationIDParam, err := strconv.Atoi(idParam)
 
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -27,7 +27,7 @@ func DeleteNotificationHandler(deleteNotificationUseCase usecase.DeleteNotificat
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "can not get user id"})
 		}
 
-		notificationID, err = deleteNotificationUseCase.Exec(userID.(uint), notificationID)
+		notificationID, err := deleteNotificationUseCase.Exec(userID.(uint), uint(notificationIDParam))
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

@@ -2,23 +2,30 @@ package channels
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 )
 
-type EmailNotification struct {
-	entities.Notification
-	Wrapped        entities.NotificationComponent
-	RecipientEmail string
+type EmailStrategy struct{}
+
+func NewEmailStrategy() entities.NotificationStrategy {
+	return &EmailStrategy{}
 }
 
-func (e EmailNotification) Validate() error {
-	if len(e.RecipientEmail) <= 0 {
-		return errors.New("recipient email cannot be empty")
-	}
-	if !strings.Contains(e.RecipientEmail, "@") || !strings.Contains(e.RecipientEmail, ".") {
+func (es *EmailStrategy) validate(user entities.User) error {
+	if !strings.Contains(user.Email, "@") || !strings.Contains(user.Email, ".") {
 		return errors.New("invalid email structure")
 	}
+	return nil
+}
+
+func (es *EmailStrategy) Send(user entities.User, notification entities.Notification) error {
+	err := es.validate(user)
+	if err != nil {
+		return err
+	}
+	fmt.Println("sending via email")
 	return nil
 }

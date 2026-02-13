@@ -25,6 +25,9 @@ func NewCreateUser(repository gateway.UserRepository) CreateUserUseCase {
 }
 
 func (cu createUserUseCase) Exec(user entities.User) (entities.User, error) {
+
+	user.Email = strings.ToLower(user.Email)
+
 	if !strings.Contains(user.Email, "@") || !strings.Contains(user.Email, ".") {
 		return entities.User{}, errors.New("invalid email structure")
 	}

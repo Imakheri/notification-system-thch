@@ -13,7 +13,6 @@ type Notification struct {
 	Recipients []User    `gorm:"many2many:notification_recipients;" json:"recipients"`
 }
 
-type NotificationComponent interface {
-	Validate() error
-	Send() error
+type NotificationStrategy interface {
+	Send(User, Notification) error
 }

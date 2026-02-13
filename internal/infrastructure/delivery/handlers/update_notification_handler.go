@@ -32,7 +32,11 @@ func UpdateNotificationHandler(updateNotificationUseCase usecase.UpdateNotificat
 		if !ok {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "can not get user id"})
 		}
-		notification, err = updateNotificationUseCase.Exec(userID.(uint), notificationID, notification)
+		userEmail, ok := ctx.Get("email")
+		if !ok {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "can not get user email"})
+		}
+		notification, err = updateNotificationUseCase.Exec(userID.(uint), userEmail.(string), notificationID, notification)
 
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

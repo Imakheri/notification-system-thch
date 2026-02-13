@@ -22,11 +22,7 @@ func (nr *NotificationRepository) CreateNotification(userID uint, notification e
 	var user entities.User
 	result := Database().First(&user, userID)
 	if result.Error != nil {
-		return entities.Notification{}, errors.New("notification not found")
-	}
-
-	if ok, err := areRecipientsValid(userID, notification); !ok {
-		return entities.Notification{}, err
+		return entities.Notification{}, errors.New("user not found")
 	}
 
 	notification.CreatedBy = userID
@@ -46,12 +42,7 @@ func (nr *NotificationRepository) GetNotificationsByUser(userID uint) ([]entitie
 	return notifications, nil
 }
 
-func (nr *NotificationRepository) DeleteNotificationByID(userID uint, notificationID int) (int, error) {
-	_, err := checkNotificationExistsAndBelongsToUser(userID, notificationID)
-	if err != nil {
-		return 0, err
-	}
-
+func (nr *NotificationRepository) DeleteNotificationByID(notificationID uint) (uint, error) {
 	result := Database().Delete(&entities.Notification{}, notificationID)
 	if result.Error != nil {
 		return 0, result.Error
@@ -59,57 +50,15 @@ func (nr *NotificationRepository) DeleteNotificationByID(userID uint, notificati
 	return notificationID, nil
 }
 
-func (nr *NotificationRepository) UpdateNotification(userID uint, notificationID int, notificationDTO entities.Notification) (entities.Notification, error) {
-
-	notification, err := checkNotificationExistsAndBelongsToUser(userID, notificationID)
-
-	if err != nil {
-		return entities.Notification{}, err
-	}
-
-	if len(notificationDTO.Title) <= 0 {
-		notificationDTO.Title = notification.Title
-	} else {
-		notification.Title = notificationDTO.Title
-	}
-	if len(notificationDTO.Content) <= 0 {
-		notificationDTO.Content = notification.Content
-	} else {
-		notification.Content = notificationDTO.Content
-	}
-	if len(notificationDTO.Channels) <= 0 {
-		notificationDTO.Channels = notification.Channels
-	} else {
-		notification.Channels = notificationDTO.Channels
-	}
-	if len(notificationDTO.Recipients) <= 0 {
-		notificationDTO.Recipients = notification.Recipients
-	} else {
-		if ok, err := areRecipientsValid(userID, notificationDTO); !ok {
-			return entities.Notification{}, err
-		}
-		notification.Recipients = notificationDTO.Recipients
-	}
-
+func (nr *NotificationRepository) UpdateNotification(notification entities.Notification) (entities.Notification, error) {
 	result := Database().Save(&notification)
 	if result.Error != nil {
 		return entities.Notification{}, result.Error
 	}
-
 	return notification, nil
 }
 
-func areRecipientsValid(userID uint, recipients entities.Notification) (bool, error) {
-	for _, recipient := range recipients.Recipients {
-		result := Database().First(&recipient)
-		if result.Error != nil || recipient.ID == userID {
-			return false, errors.New("recipient not valid")
-		}
-	}
-	return true, nil
-}
-
-func checkNotificationExistsAndBelongsToUser(userID uint, notificationID int) (entities.Notification, error) {
+func (nr *NotificationRepository) DoesNotificationExistsAndBelongsToUser(userID uint, notificationID uint) (entities.Notification, error) {
 	var notification entities.Notification
 	result := Database().First(&notification, notificationID)
 	if result.Error != nil {

@@ -6,16 +6,30 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
+	"github.com/imakheri/notifications-thch/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-func Database() *gorm.DB {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal()
+type Database struct {
+	DatabaseName     string
+	DatabaseUser     string
+	DataBasePassword string
+	DatabasePath     string
+	DatabasePort     string
+}
+
+func NewDatabase(cfg *config.Config) *Database {
+	return &Database{
+		DatabaseName:     cfg.DatabaseName,
+		DatabaseUser:     cfg.DatabaseUser,
+		DataBasePassword: cfg.DataBasePassword,
+		DatabasePath:     cfg.DatabasePath,
+		DatabasePort:     cfg.DatabasePort,
 	}
+}
+
+func (db *Database) Database() *gorm.DB {
 	var dns = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v%v",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
@@ -36,5 +50,4 @@ func Database() *gorm.DB {
 		poolConnection.SetConnMaxLifetime(time.Hour)
 		return db
 	}
-
 }

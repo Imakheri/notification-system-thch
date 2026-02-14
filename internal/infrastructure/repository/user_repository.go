@@ -3,21 +3,20 @@ package repository
 import (
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
-	"gorm.io/gorm"
 )
 
 type userRepository struct {
-	db_connection *gorm.DB
+	db_connection *Database
 }
 
-func NewUserRepository(db *gorm.DB) gateway.UserRepository {
+func NewUserRepository(db *Database) gateway.UserRepository {
 	return &userRepository{
 		db_connection: db,
 	}
 }
 
 func (ur *userRepository) CreateUser(user entities.User) (entities.User, error) {
-	result := Database().Create(&user)
+	result := ur.db_connection.Database().Create(&user)
 	if result.Error != nil {
 		return entities.User{}, result.Error
 	}
@@ -26,7 +25,7 @@ func (ur *userRepository) CreateUser(user entities.User) (entities.User, error) 
 
 func (ur *userRepository) GetUserByEmail(email string) (entities.User, error) {
 	var user entities.User
-	result := Database().Where("email = ?", email).First(&user)
+	result := ur.db_connection.Database().Where("email = ?", email).First(&user)
 	if result.Error != nil {
 		return user, result.Error
 	}
@@ -34,7 +33,7 @@ func (ur *userRepository) GetUserByEmail(email string) (entities.User, error) {
 }
 
 func (ur *userRepository) DoesUserAlreadyExist(email string) bool {
-	result := Database().Where("email = ?", email).First(&entities.User{})
+	result := ur.db_connection.Database().Where("email = ?", email).First(&entities.User{})
 	if result.Error != nil {
 		return false
 	}

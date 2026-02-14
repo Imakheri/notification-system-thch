@@ -5,14 +5,13 @@ import (
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
-	"gorm.io/gorm"
 )
 
 type NotificationRepository struct {
-	db_connection *gorm.DB
+	db_connection *Database
 }
 
-func NewNotificationRepository(db *gorm.DB) gateway.NotificationRepository {
+func NewNotificationRepository(db *Database) gateway.NotificationRepository {
 	return &NotificationRepository{
 		db_connection: db,
 	}
@@ -20,13 +19,14 @@ func NewNotificationRepository(db *gorm.DB) gateway.NotificationRepository {
 
 func (nr *NotificationRepository) CreateNotification(userID uint, notification entities.Notification) (entities.Notification, error) {
 	var user entities.User
-	result := Database().First(&user, userID)
+
+	result := nr.db_connection.Database().First(&user, userID)
 	if result.Error != nil {
 		return entities.Notification{}, errors.New("user not found")
 	}
 
 	notification.CreatedBy = userID
-	result = Database().Create(&notification)
+	result = nr.db_connection.Database().Create(&notification)
 	if result.Error != nil {
 		return entities.Notification{}, result.Error
 	}
@@ -35,7 +35,7 @@ func (nr *NotificationRepository) CreateNotification(userID uint, notification e
 
 func (nr *NotificationRepository) GetNotificationsByUser(userID uint) ([]entities.Notification, error) {
 	var notifications []entities.Notification
-	result := Database().Find(&notifications, "created_by = ?", userID)
+	result := nr.db_connection.Database().Find(&notifications, "created_by = ?", userID)
 	if result.Error != nil {
 		return []entities.Notification{}, result.Error
 	}
@@ -43,7 +43,7 @@ func (nr *NotificationRepository) GetNotificationsByUser(userID uint) ([]entitie
 }
 
 func (nr *NotificationRepository) DeleteNotificationByID(notificationID uint) (uint, error) {
-	result := Database().Delete(&entities.Notification{}, notificationID)
+	result := nr.db_connection.Database().Delete(&entities.Notification{}, notificationID)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -51,7 +51,7 @@ func (nr *NotificationRepository) DeleteNotificationByID(notificationID uint) (u
 }
 
 func (nr *NotificationRepository) UpdateNotification(notification entities.Notification) (entities.Notification, error) {
-	result := Database().Save(&notification)
+	result := nr.db_connection.Database().Save(&notification)
 	if result.Error != nil {
 		return entities.Notification{}, result.Error
 	}
@@ -60,7 +60,7 @@ func (nr *NotificationRepository) UpdateNotification(notification entities.Notif
 
 func (nr *NotificationRepository) DoesNotificationExistsAndBelongsToUser(userID uint, notificationID uint) (entities.Notification, error) {
 	var notification entities.Notification
-	result := Database().First(&notification, notificationID)
+	result := nr.db_connection.Database().First(&notification, notificationID)
 	if result.Error != nil {
 		return notification, errors.New("notification not found")
 	}

@@ -6,18 +6,20 @@ import (
 	"log"
 	"os"
 
+	"github.com/imakheri/notifications-thch/config"
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/repository"
 )
 
 func main() {
+	cfg := config.Load()
 	migrate := flag.Bool("migrate", false, "Create or update database tables with GORM")
 	seed := flag.Bool("seed", false, "Seed 'channels' tables with SQL Query")
 	all := flag.Bool("all", false, "Executes migration then seeding")
 
 	flag.Parse()
 
-	db := repository.Database()
+	db := repository.NewDatabase(cfg).Database()
 
 	if *migrate || *all {
 		fmt.Println("Executing AutoMigrate...")

@@ -5,10 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/imakheri/notifications-thch/config"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/service"
 )
 
-func AuthorizeJWT() gin.HandlerFunc {
+func AuthorizeJWT(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		const BEARER_SCHEMA = "Bearer"
 		authHeader := ctx.GetHeader("Authorization")
@@ -19,7 +20,7 @@ func AuthorizeJWT() gin.HandlerFunc {
 
 		tokenString := authHeader[len(BEARER_SCHEMA)+1:]
 
-		token, err := service.NewJWTService().ValidateToken(tokenString)
+		token, err := service.NewJWTService(cfg).ValidateToken(tokenString)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 		}

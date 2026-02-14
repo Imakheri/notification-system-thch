@@ -2,24 +2,25 @@ package service
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/imakheri/notifications-thch/config"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
-	"github.com/joho/godotenv"
 )
 
 type JWTService struct {
 	jwToken string
+	secret  string
 }
 
-func NewJWTService() gateway.JwTokenService {
-	return &JWTService{}
+func NewJWTService(cfg *config.Config) gateway.JwTokenService {
+	return &JWTService{
+		secret: cfg.SecretJWT,
+	}
 }
 
 func (s JWTService) GenerateToken(email string, id uint) (string, error) {
-
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
 		"email": email,
 		"id":    id,
@@ -27,7 +28,7 @@ func (s JWTService) GenerateToken(email string, id uint) (string, error) {
 		"exp":   time.Now().Add(time.Minute * 60).Unix(),
 	})
 
-	token, err := claims.SignedString([]byte(getSecretKey("SECRET_JWT")))
+	token, err := claims.SignedString([]byte(s.secret))
 	if err != nil {
 		return "", err
 	}
@@ -39,16 +40,6 @@ func (s JWTService) ValidateToken(tokenString string) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(getSecretKey("SECRET_JWT")), nil
+		return []byte(s.secret), nil
 	})
-}
-
-func getSecretKey(variableName string) string {
-	err := godotenv.Load()
-	if err != nil {
-		panic("Error loading .env file")
-	}
-
-	secret := os.Getenv(variableName)
-	return secret
 }

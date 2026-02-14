@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 
+	"github.com/imakheri/notifications-thch/config"
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/service"
@@ -10,21 +11,23 @@ import (
 )
 
 type GetUser interface {
-	Exec(user entities.User) (entities.User, error)
+	Exec(user entities.User, cfg *config.Config) (entities.User, error)
 }
 
 type getUser struct {
 	repository  gateway.UserRepository
 	jwt_service gateway.JwTokenService
+	secret      string
 }
 
-func NewGetUser(repository gateway.UserRepository) GetUser {
+func NewGetUser(repository gateway.UserRepository, cfg *config.Config) GetUser {
 	return &getUser{
 		repository: repository,
+		secret:     cfg.SecretJWT,
 	}
 }
 
-func (g getUser) Exec(userRequest entities.User) (entities.User, error) {
+func (g *getUser) Exec(userRequest entities.User, cfg *config.Config) (entities.User, error) {
 	user, err := g.repository.GetUserByEmail(userRequest.Email)
 	if err != nil {
 		return entities.User{}, errors.New("user not found")
@@ -36,7 +39,7 @@ func (g getUser) Exec(userRequest entities.User) (entities.User, error) {
 
 	user.Password = ""
 
-	token, err := service.NewJWTService().GenerateToken(user.Email, user.ID)
+	token, err := service.NewJWTService(cfg).GenerateToken(user.Email, user.ID)
 
 	if err != nil {
 		return entities.User{}, errors.New("could not generate JWT")

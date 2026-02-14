@@ -9,7 +9,17 @@ import (
 	"github.com/imakheri/notifications-thch/internal/infrastructure/service"
 )
 
-func AuthorizeJWT(cfg *config.Config) gin.HandlerFunc {
+type AuthorizeJWT struct {
+	config *config.Config
+}
+
+func NewAuthorizeJWT(config *config.Config) *AuthorizeJWT {
+	return &AuthorizeJWT{
+		config: config,
+	}
+}
+
+func (a *AuthorizeJWT) AuthorizeJWT() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		const BEARER_SCHEMA = "Bearer"
 		authHeader := ctx.GetHeader("Authorization")
@@ -20,7 +30,7 @@ func AuthorizeJWT(cfg *config.Config) gin.HandlerFunc {
 
 		tokenString := authHeader[len(BEARER_SCHEMA)+1:]
 
-		token, err := service.NewJWTService(cfg).ValidateToken(tokenString)
+		token, err := service.NewJWTService(a.config).ValidateToken(tokenString)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 		}

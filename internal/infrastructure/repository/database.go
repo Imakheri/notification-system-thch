@@ -3,7 +3,6 @@ package repository
 import (
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/imakheri/notifications-thch/config"
@@ -31,11 +30,11 @@ func NewDatabase(cfg *config.Config) *Database {
 
 func (db *Database) Database() *gorm.DB {
 	var dns = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v%v",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_PATH"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"),
+		db.DatabaseUser,
+		db.DataBasePassword,
+		db.DatabasePath,
+		db.DatabasePort,
+		db.DatabaseName,
 		"?charset=utf8mb4&parseTime=True&loc=Local",
 	)
 	if db, err := gorm.Open(mysql.Open(dns), &gorm.Config{}); err != nil {

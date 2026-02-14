@@ -11,12 +11,12 @@ import (
 
 type JWTService struct {
 	jwToken string
-	secret  string
+	config  *config.Config
 }
 
-func NewJWTService(cfg *config.Config) gateway.JwTokenService {
+func NewJWTService(config *config.Config) gateway.JwTokenService {
 	return &JWTService{
-		secret: cfg.SecretJWT,
+		config: config,
 	}
 }
 
@@ -28,7 +28,7 @@ func (s JWTService) GenerateToken(email string, id uint) (string, error) {
 		"exp":   time.Now().Add(time.Minute * 60).Unix(),
 	})
 
-	token, err := claims.SignedString([]byte(s.secret))
+	token, err := claims.SignedString([]byte(s.config.SecretJWT))
 	if err != nil {
 		return "", err
 	}
@@ -40,6 +40,6 @@ func (s JWTService) ValidateToken(tokenString string) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(s.secret), nil
+		return []byte(s.config.SecretJWT), nil
 	})
 }

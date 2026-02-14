@@ -2,23 +2,27 @@ package middleware
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	"github.com/imakheri/notifications-thch/config"
 )
 
-func ValidateAPIKey() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		err := godotenv.Load()
-		if err != nil {
-			panic("Error loading .env file")
-		}
-		secret := os.Getenv("API_KEY")
-		apiKey := ctx.GetHeader("api_key")
+type APIKey struct {
+	config config.Config
+}
 
-		if len(apiKey) == 0 || apiKey != secret {
+func NewAPIKey(cfg *config.Config) *APIKey {
+	return &APIKey{
+		config: *cfg,
+	}
+}
+
+func (a *APIKey) ValidateAPIKey() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		apiKey := ctx.GetHeader("api_key")
+		if len(apiKey) <= 0 || apiKey != a.config.ApiKey {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "must enter a valid API Key"})
 		}
+		ctx.Next()
 	}
 }

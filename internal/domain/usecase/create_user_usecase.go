@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -25,19 +26,14 @@ func NewCreateUser(repository gateway.UserRepository) CreateUserUseCase {
 }
 
 func (cu createUserUseCase) Exec(user entities.User) (entities.User, error) {
-
-	user.Email = strings.ToLower(user.Email)
-
-	if !strings.Contains(user.Email, "@") || !strings.Contains(user.Email, ".") {
-		return entities.User{}, errors.New("invalid email structure")
+	_, err := cu.repository.GetUserByEmail(user.Email)
+	if err == nil {
+		return entities.User{}, errors.New("user already exists")
 	}
 
-	if ok := cu.repository.DoesUserAlreadyExist(user.Email); ok {
-		return entities.User{}, errors.New("email already exists")
-	}
-
-	if !isASecurePassword(user.Password) {
-		return entities.User{}, errors.New("invalid password structure")
+	err = checkUserProperties(user)
+	if err != nil {
+		return entities.User{}, err
 	}
 
 	bytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
@@ -63,7 +59,7 @@ func isASecurePassword(password string) bool {
 		hasSymbol    bool
 	)
 
-	if len(password) > 8 && len(password) < 16 {
+	if len(password) > 8 && len(password) < 20 {
 		minLength = true
 	}
 
@@ -80,4 +76,32 @@ func isASecurePassword(password string) bool {
 		}
 	}
 	return minLength && hasUppercase && hasLowercase && hasDigit && hasSymbol
+}
+
+func checkUserProperties(user entities.User) error {
+	user.Email = strings.ToLower(user.Email)
+
+	if !strings.Contains(user.Email, "@") || !strings.Contains(user.Email, ".") {
+		return errors.New("invalid email structure")
+	}
+
+	if !isASecurePassword(user.Password) {
+		return errors.New("invalid password structure")
+	}
+
+	if len(user.Name) <= 0 || len(user.Name) >= 20 {
+		return errors.New("invalid name structure")
+	}
+
+	_, err := strconv.Atoi(user.Phone)
+
+	if len(user.Phone) <= 0 || len(user.Phone) >= 12 || err != nil {
+		return errors.New("invalid phone structure")
+	}
+
+	if len(user.DeviceToken) <= 0 {
+		return errors.New("invalid device token structure")
+	}
+
+	return nil
 }

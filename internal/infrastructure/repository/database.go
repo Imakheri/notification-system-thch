@@ -11,24 +11,32 @@ import (
 )
 
 type Database struct {
-	DatabaseName     string
-	DatabaseUser     string
-	DataBasePassword string
-	DatabasePath     string
-	DatabasePort     string
+	DatabaseName       string
+	DatabaseUser       string
+	DataBasePassword   string
+	DatabasePath       string
+	DatabasePort       string
+	DatabaseConnection *gorm.DB
 }
 
 func NewDatabase(cfg *config.Config) *Database {
-	return &Database{
+	db := &Database{
 		DatabaseName:     cfg.DatabaseName,
 		DatabaseUser:     cfg.DatabaseUser,
 		DataBasePassword: cfg.DataBasePassword,
 		DatabasePath:     cfg.DatabasePath,
 		DatabasePort:     cfg.DatabasePort,
 	}
+	db.DatabaseConnection = db.Connection()
+	return db
 }
 
-func (db *Database) Database() *gorm.DB {
+func (db *Database) Connection() *gorm.DB {
+
+	if db.DatabaseConnection != nil {
+		return db.DatabaseConnection
+	}
+
 	var dns = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v%v",
 		db.DatabaseUser,
 		db.DataBasePassword,

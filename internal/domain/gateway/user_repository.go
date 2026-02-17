@@ -6,6 +6,6 @@ import (
 
 type UserRepository interface {
 	CreateUser(user entities.User) (entities.User, error)
-	DoesUserAlreadyExist(email string) bool
 	GetUserByEmail(email string) (entities.User, error)
+	UpdateUser(user entities.User) (entities.User, error)
 }

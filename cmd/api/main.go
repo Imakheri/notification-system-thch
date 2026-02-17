@@ -24,22 +24,23 @@ func main() {
 	getUserUseCase := usecase.NewGetUser(userRepository, cfg)
 	router.POST(prefix+"/user", middleware.NewAPIKey(cfg).ValidateAPIKey(), handlers.GetUserHandler(getUserUseCase))
 	//UPDATE USER
-	//router.PUT(prefix+"/user/:id", middleware.ValidateAPIKey(), middleware.AuthorizeJWT(), handlers.UpdateNotificationHandler(updateNotificationUseCase))
+	updateUserUsecase := usecase.NewUpdateUserUseCase(userRepository)
+	router.PUT(prefix+"/user", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.UpdateUserHandler(updateUserUsecase))
 
 	//CREATE
 	notificationRepo := repository.NewNotificationRepository(db)
 	createNotificationUseCase := usecase.NewCreateNotificationUseCase(notificationRepo, userRepository)
-	router.POST(prefix+"/notification", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT().AuthorizeJWT(), handlers.CreateNotificationHandler(createNotificationUseCase))
+	router.POST(prefix+"/notification", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.CreateNotificationHandler(createNotificationUseCase))
 
 	getNotificationsByUserUseCase := usecase.NewGetNotificationsByUserUseCase(notificationRepo)
 	//READ
-	router.GET(prefix+"/notifications", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT().AuthorizeJWT(), handlers.GetNotificationsByUserIDHandler(getNotificationsByUserUseCase))
+	router.GET(prefix+"/notifications", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.GetNotificationsByUserIDHandler(getNotificationsByUserUseCase))
 	//UPDATE
 	updateNotificationUseCase := usecase.NewUpdateNotificationUseCase(notificationRepo, userRepository)
-	router.PUT(prefix+"/notification/:id", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT().AuthorizeJWT(), handlers.UpdateNotificationHandler(updateNotificationUseCase))
+	router.PUT(prefix+"/notification/:id", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.UpdateNotificationHandler(updateNotificationUseCase))
 	//DELETE
 	deleteNotificationUsecase := usecase.NewDeleteNotification(notificationRepo)
-	router.DELETE(prefix+"/notification/:id", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT().AuthorizeJWT(), handlers.DeleteNotificationHandler(deleteNotificationUsecase))
+	router.DELETE(prefix+"/notification/:id", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.DeleteNotificationHandler(deleteNotificationUsecase))
 
 	router.Run()
 }

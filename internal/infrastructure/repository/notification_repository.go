@@ -8,25 +8,25 @@ import (
 )
 
 type NotificationRepository struct {
-	db_connection *Database
+	db *Database
 }
 
 func NewNotificationRepository(db *Database) gateway.NotificationRepository {
 	return &NotificationRepository{
-		db_connection: db,
+		db: db,
 	}
 }
 
 func (nr *NotificationRepository) CreateNotification(userID uint, notification entities.Notification) (entities.Notification, error) {
 	var user entities.User
 
-	result := nr.db_connection.Database().First(&user, userID)
+	result := nr.db.DatabaseConnection.First(&user, userID)
 	if result.Error != nil {
 		return entities.Notification{}, errors.New("user not found")
 	}
 
 	notification.CreatedBy = userID
-	result = nr.db_connection.Database().Create(&notification)
+	result = nr.db.DatabaseConnection.Create(&notification)
 	if result.Error != nil {
 		return entities.Notification{}, result.Error
 	}
@@ -35,7 +35,7 @@ func (nr *NotificationRepository) CreateNotification(userID uint, notification e
 
 func (nr *NotificationRepository) GetNotificationsByUser(userID uint) ([]entities.Notification, error) {
 	var notifications []entities.Notification
-	result := nr.db_connection.Database().Find(&notifications, "created_by = ?", userID)
+	result := nr.db.DatabaseConnection.Find(&notifications, "created_by = ?", userID)
 	if result.Error != nil {
 		return []entities.Notification{}, result.Error
 	}
@@ -43,7 +43,7 @@ func (nr *NotificationRepository) GetNotificationsByUser(userID uint) ([]entitie
 }
 
 func (nr *NotificationRepository) DeleteNotificationByID(notificationID uint) (uint, error) {
-	result := nr.db_connection.Database().Delete(&entities.Notification{}, notificationID)
+	result := nr.db.DatabaseConnection.Delete(&entities.Notification{}, notificationID)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -51,7 +51,7 @@ func (nr *NotificationRepository) DeleteNotificationByID(notificationID uint) (u
 }
 
 func (nr *NotificationRepository) UpdateNotification(notification entities.Notification) (entities.Notification, error) {
-	result := nr.db_connection.Database().Save(&notification)
+	result := nr.db.DatabaseConnection.Save(&notification)
 	if result.Error != nil {
 		return entities.Notification{}, result.Error
 	}
@@ -60,7 +60,7 @@ func (nr *NotificationRepository) UpdateNotification(notification entities.Notif
 
 func (nr *NotificationRepository) DoesNotificationExistsAndBelongsToUser(userID uint, notificationID uint) (entities.Notification, error) {
 	var notification entities.Notification
-	result := nr.db_connection.Database().First(&notification, notificationID)
+	result := nr.db.DatabaseConnection.First(&notification, notificationID)
 	if result.Error != nil {
 		return notification, errors.New("notification not found")
 	}

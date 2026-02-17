@@ -34,16 +34,19 @@ func (u *updateNotificationUseCase) Exec(userID uint, userEmail string, notifica
 	} else {
 		notification.Title = notificationDTO.Title
 	}
+
 	if len(notificationDTO.Content) <= 0 {
 		notificationDTO.Content = notification.Content
 	} else {
 		notification.Content = notificationDTO.Content
 	}
+
 	if len(notificationDTO.Channels) <= 0 {
 		notificationDTO.Channels = notification.Channels
 	} else {
 		notification.Channels = notificationDTO.Channels
 	}
+
 	if len(notificationDTO.Recipients) <= 0 {
 		notificationDTO.Recipients = notification.Recipients
 	} else {

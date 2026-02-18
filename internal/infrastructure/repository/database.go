@@ -3,26 +3,46 @@ package repository
 import (
 	"fmt"
 	"log"
-	"os"
 	"time"
 
-	"github.com/imakheri/notifications-thch/internal/domain/entities"
-	"github.com/joho/godotenv"
+	"github.com/imakheri/notifications-thch/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-func Database() *gorm.DB {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal()
+type Database struct {
+	DatabaseName       string
+	DatabaseUser       string
+	DataBasePassword   string
+	DatabasePath       string
+	DatabasePort       string
+	DatabaseConnection *gorm.DB
+}
+
+func NewDatabase(cfg *config.Config) *Database {
+	db := &Database{
+		DatabaseName:     cfg.DatabaseName,
+		DatabaseUser:     cfg.DatabaseUser,
+		DataBasePassword: cfg.DataBasePassword,
+		DatabasePath:     cfg.DatabasePath,
+		DatabasePort:     cfg.DatabasePort,
 	}
+	db.DatabaseConnection = db.Connection()
+	return db
+}
+
+func (db *Database) Connection() *gorm.DB {
+
+	if db.DatabaseConnection != nil {
+		return db.DatabaseConnection
+	}
+
 	var dns = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v%v",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_PATH"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"),
+		db.DatabaseUser,
+		db.DataBasePassword,
+		db.DatabasePath,
+		db.DatabasePort,
+		db.DatabaseName,
 		"?charset=utf8mb4&parseTime=True&loc=Local",
 	)
 	if db, err := gorm.Open(mysql.Open(dns), &gorm.Config{}); err != nil {
@@ -36,14 +56,5 @@ func Database() *gorm.DB {
 		poolConnection.SetMaxOpenConns(100)
 		poolConnection.SetConnMaxLifetime(time.Hour)
 		return db
-	}
-
-}
-
-func Migration() {
-	err := Database().AutoMigrate(&entities.User{}, &entities.Channel{}, &entities.Notification{})
-	if err != nil {
-		panic(err)
-		return
 	}
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type DeleteNotificationUseCase interface {
-	Exec(notificationID int) (int, error)
+	Exec(userID uint, notificationID uint) (uint, error)
 }
 
 type deleteNotificationUseCase struct {
@@ -18,8 +18,12 @@ func NewDeleteNotification(deleteNotificationRepository gateway.NotificationRepo
 	}
 }
 
-func (dnu deleteNotificationUseCase) Exec(notificationID int) (int, error) {
-	notificationID, err := dnu.deleteNotificationRepository.DeleteNotificationByID(notificationID)
+func (dnu *deleteNotificationUseCase) Exec(userID uint, notificationID uint) (uint, error) {
+	_, err := dnu.deleteNotificationRepository.DoesNotificationExistsAndBelongsToUser(userID, notificationID)
+	if err != nil {
+		return 0, err
+	}
+	notificationID, err = dnu.deleteNotificationRepository.DeleteNotificationByID(notificationID)
 	if err != nil {
 		return 0, err
 	}

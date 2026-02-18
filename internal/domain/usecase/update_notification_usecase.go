@@ -8,7 +8,7 @@ import (
 )
 
 type UpdateNotificationUseCase interface {
-	Exec(userID uint, userEmail string, notificationID int, notification entities.Notification) (entities.Notification, error)
+	Exec(userID uint, notificationID int, notification entities.Notification) (entities.Notification, error)
 }
 
 type updateNotificationUseCase struct {
@@ -23,7 +23,7 @@ func NewUpdateNotificationUseCase(updateNotificationRepository gateway.Notificat
 	}
 }
 
-func (u *updateNotificationUseCase) Exec(userID uint, userEmail string, notificationID int, notificationDTO entities.Notification) (entities.Notification, error) {
+func (u *updateNotificationUseCase) Exec(userID uint, notificationID int, notificationDTO entities.Notification) (entities.Notification, error) {
 	notification, err := u.updateNotificationRepository.DoesNotificationExistsAndBelongsToUser(userID, uint(notificationID))
 	if err != nil {
 		return entities.Notification{}, err
@@ -50,12 +50,15 @@ func (u *updateNotificationUseCase) Exec(userID uint, userEmail string, notifica
 	if len(notificationDTO.Recipients) <= 0 {
 		notificationDTO.Recipients = notification.Recipients
 	} else {
-		for i, recipient := range notification.Recipients {
+		for i, recipient := range notificationDTO.Recipients {
 			user, err := u.userRepository.GetUserByEmail(recipient.Email)
 			if err != nil {
 				return entities.Notification{}, errors.New("recipient does not exist")
 			}
-			notification.Recipients[i].ID = user.ID
+			if userID == user.ID {
+				return entities.Notification{}, errors.New("invalid recipient")
+			}
+			notificationDTO.Recipients[i].ID = user.ID
 		}
 		notification.Recipients = notificationDTO.Recipients
 	}

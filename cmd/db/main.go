@@ -19,11 +19,11 @@ func main() {
 
 	flag.Parse()
 
-	db := repository.NewDatabase(cfg).Database()
+	db := repository.NewDatabase(cfg)
 
 	if *migrate || *all {
 		fmt.Println("Executing AutoMigrate...")
-		err := db.AutoMigrate(&entities.User{}, &entities.Channel{}, &entities.Notification{})
+		err := db.DatabaseConnection.AutoMigrate(&entities.User{}, &entities.Channel{}, &entities.Notification{})
 		if err != nil {
 			log.Fatalf("AutoMigrate error: %v", err)
 		}
@@ -37,7 +37,7 @@ func main() {
 			log.Fatalf("Error reading SQL file: %v", err)
 		}
 
-		if err := db.Exec(string(script)).Error; err != nil {
+		if err := db.DatabaseConnection.Exec(string(script)).Error; err != nil {
 			log.Fatalf("Error seeding table: %v", err)
 		}
 		fmt.Println("'Channels' table updated")

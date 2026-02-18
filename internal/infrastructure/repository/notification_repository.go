@@ -19,12 +19,10 @@ func NewNotificationRepository(db *Database) gateway.NotificationRepository {
 
 func (nr *NotificationRepository) CreateNotification(userID uint, notification entities.Notification) (entities.Notification, error) {
 	var user entities.User
-
 	result := nr.db.DatabaseConnection.First(&user, userID)
 	if result.Error != nil {
 		return entities.Notification{}, errors.New("user not found")
 	}
-
 	notification.CreatedBy = userID
 	result = nr.db.DatabaseConnection.Create(&notification)
 	if result.Error != nil {

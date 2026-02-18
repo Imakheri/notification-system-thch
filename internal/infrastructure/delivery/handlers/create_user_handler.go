@@ -16,12 +16,12 @@ func CreateUserHandler(createUserUseCase usecase.CreateUserUseCase) func(ctx *gi
 			return
 		}
 
-		user, err := createUserUseCase.Exec(user)
+		newUser, err := createUserUseCase.Exec(user)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		ctx.JSON(http.StatusCreated, gin.H{"user": user})
+		ctx.JSON(http.StatusCreated, gin.H{"user": newUser})
 	}
 }

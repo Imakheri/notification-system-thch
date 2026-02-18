@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
+	"log"
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/entities/channels"
@@ -10,7 +10,7 @@ import (
 )
 
 type CreateNotificationUseCase interface {
-	Exec(userID uint, userEmail string, notification entities.Notification) (entities.Notification, error)
+	Exec(userID uint, notification entities.Notification) (entities.Notification, error)
 }
 
 type createNotificationUseCase struct {
@@ -25,64 +25,48 @@ func NewCreateNotificationUseCase(notificationRepository gateway.NotificationRep
 	}
 }
 
-func (cnu *createNotificationUseCase) Exec(userID uint, userEmail string, notification entities.Notification) (entities.Notification, error) {
-	err := cnu.checkNotificationProperties(notification)
+func (cnu *createNotificationUseCase) Exec(userID uint, notification entities.Notification) (entities.Notification, error) {
+	notification, err := entities.CheckNotificationProperties(notification)
 	if err != nil {
 		return entities.Notification{}, err
-	}
-
-	notification, err = cnu.notificationRepository.CreateNotification(userID, notification)
-	if err != nil {
-		return entities.Notification{}, err
-	}
-
-	for _, recipient := range notification.Recipients {
-		user, err := cnu.userRepository.GetUserByEmail(recipient.Email)
-		if err != nil {
-			_, err := cnu.notificationRepository.DeleteNotificationByID(notification.ID)
-			return entities.Notification{}, err
-		}
-		for _, channel := range notification.Channels {
-			currentStrategy := strategySelector(channel.ID)
-			err = currentStrategy.Send(user, notification)
-			if err != nil {
-				_, err := cnu.notificationRepository.DeleteNotificationByID(notification.ID)
-				return entities.Notification{}, err
-			}
-		}
-	}
-
-	return notification, nil
-}
-
-func (cnu *createNotificationUseCase) checkNotificationProperties(notification entities.Notification) error {
-	if len(notification.Title) == 0 {
-		return errors.New("notification must have a title")
-	}
-	if len(notification.Content) == 0 {
-		return errors.New("notification must have content")
-	}
-	if len(notification.Recipients) < 0 {
-		return errors.New("recipients must not be greater than 0")
 	}
 
 	for i, recipient := range notification.Recipients {
 		user, err := cnu.userRepository.GetUserByEmail(recipient.Email)
 		if err != nil {
-			return errors.New("recipient does not exist")
+			return entities.Notification{}, errors.New("recipient does not exist")
+		}
+		if userID == user.ID {
+			return entities.Notification{}, errors.New("invalid recipient")
 		}
 		notification.Recipients[i].ID = user.ID
 	}
 
-	if len(notification.Channels) < 0 {
-		return errors.New("notification must use at least one channel")
+	newNotification, err := cnu.notificationRepository.CreateNotification(userID, notification)
+	if err != nil {
+		return entities.Notification{}, err
 	}
-	for _, channel := range notification.Channels {
-		if channel.ID == 0 || channel.ID > 3 {
-			return errors.New("mush enter a valid channel")
+
+	for _, recipient := range newNotification.Recipients {
+		user, err := cnu.userRepository.GetUserByEmail(recipient.Email)
+		if err != nil {
+			_, err := cnu.notificationRepository.DeleteNotificationByID(newNotification.ID)
+			return entities.Notification{}, err
+		}
+		for _, channel := range newNotification.Channels {
+			currentStrategy := strategySelector(channel.ID)
+			err = currentStrategy.Send(user, newNotification)
+			if err != nil {
+				_, errorDeleting := cnu.notificationRepository.DeleteNotificationByID(newNotification.ID)
+				if errorDeleting != nil {
+					return entities.Notification{}, errorDeleting
+				}
+				return entities.Notification{}, err
+			}
 		}
 	}
-	return nil
+
+	return newNotification, nil
 }
 
 func strategySelector(idStrategy uint) entities.NotificationStrategy {
@@ -95,7 +79,7 @@ func strategySelector(idStrategy uint) entities.NotificationStrategy {
 	case 3:
 		selectedStrategy = channels.NewPushStrategy()
 	default:
-		fmt.Println("Unknown strategy")
+		log.Fatal("Unknown strategy")
 	}
 	return selectedStrategy
 }

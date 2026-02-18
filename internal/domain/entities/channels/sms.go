@@ -18,7 +18,7 @@ func (ss *SMSStrategy) validate(user entities.User) error {
 	if len(user.Phone) <= 0 {
 		return errors.New("user must have a phone number")
 	}
-	if len(user.Phone) < 11 {
+	if len(user.Phone) < 10 {
 		return errors.New("invalid phone number")
 	}
 	_, err := strconv.Atoi(user.Phone)

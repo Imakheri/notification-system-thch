@@ -19,11 +19,11 @@ func NewDeleteNotification(deleteNotificationRepository gateway.NotificationRepo
 }
 
 func (dnu *deleteNotificationUseCase) Exec(userID uint, notificationID uint) (uint, error) {
-	_, err := dnu.deleteNotificationRepository.DoesNotificationExistsAndBelongsToUser(userID, uint(notificationID))
+	_, err := dnu.deleteNotificationRepository.DoesNotificationExistsAndBelongsToUser(userID, notificationID)
 	if err != nil {
 		return 0, err
 	}
-	notificationID, err = dnu.deleteNotificationRepository.DeleteNotificationByID(uint(notificationID))
+	notificationID, err = dnu.deleteNotificationRepository.DeleteNotificationByID(notificationID)
 	if err != nil {
 		return 0, err
 	}

@@ -57,10 +57,11 @@ func (uuu *updateUserUseCase) Exec(userEmail string, userDTO entities.User) (ent
 	if len(userDTO.Password) <= 0 {
 		userDTO.Password = user.Password
 	} else {
-		if !isASecurePassword(userDTO.Password) {
-			return entities.User{}, errors.New("invalid password structure")
+		newPassword, err := entities.NewPassword(userDTO.Password)
+		if err != nil {
+			return entities.User{}, err
 		}
-		bytes, err := bcrypt.GenerateFromPassword([]byte(userDTO.Password), 10)
+		bytes, err := bcrypt.GenerateFromPassword([]byte(newPassword), 10)
 		if err != nil {
 			return entities.User{}, errors.New("failed to encrypt password")
 		}

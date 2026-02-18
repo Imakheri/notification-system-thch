@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/gin-gonic/gin"
 	"github.com/imakheri/notifications-thch/config"
@@ -42,5 +44,5 @@ func main() {
 	deleteNotificationUsecase := usecase.NewDeleteNotification(notificationRepo)
 	router.DELETE(prefix+"/notification/:id", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.DeleteNotificationHandler(deleteNotificationUsecase))
 
-	router.Run()
+	log.Fatal(router.Run())
 }

@@ -14,7 +14,7 @@ func NewPushStrategy() entities.NotificationStrategy {
 }
 
 func (ps *PushStrategy) validate(user entities.User) error {
-	if len(user.DeviceToken) > 0 {
+	if len(user.DeviceToken) < 0 {
 		return errors.New("user must have a device token")
 	}
 	return nil

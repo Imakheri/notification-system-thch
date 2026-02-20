@@ -41,10 +41,10 @@ func (u *updateNotificationUseCase) Exec(userID uint, notificationID int, notifi
 		notification.Content = notificationDTO.Content
 	}
 
-	if len(notificationDTO.Channels) <= 0 {
-		notificationDTO.Channels = notification.Channels
+	if notificationDTO.Channel.ID == 0 {
+		notificationDTO.Channel = notification.Channel
 	} else {
-		notification.Channels = notificationDTO.Channels
+		notification.Channel = notificationDTO.Channel
 	}
 
 	if len(notificationDTO.Recipients) <= 0 {

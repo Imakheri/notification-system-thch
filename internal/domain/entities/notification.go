@@ -2,17 +2,20 @@ package entities
 
 import (
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 type Notification struct {
 	gorm.Model
-	CreatedBy  uint      `gorm:"not null" json:"created_by"`
-	Title      string    `gorm:"type:varchar(100); not null" json:"title"`
-	Content    string    `gorm:"not null" json:"content"`
-	Channels   []Channel `gorm:"many2many:notification_channels;" json:"channels"`
-	Recipients []User    `gorm:"many2many:notification_recipients;" json:"recipients"`
+	CreatedBy  uint       `gorm:"not null" json:"created_by"`
+	SentAt     *time.Time `json:"sent_at"`
+	Title      string     `gorm:"type:varchar(100); not null" json:"title"`
+	Content    string     `gorm:"not null" json:"content"`
+	ChannelID  uint       `json:"channel_id"`
+	Channel    Channel    `json:"channel"`
+	Recipients []User     `gorm:"many2many:notification_recipients;" json:"recipients"`
 }
 
 type NotificationStrategy interface {
@@ -28,7 +31,7 @@ func CheckNotificationProperties(notification Notification) (Notification, error
 	if err != nil {
 		return Notification{}, err
 	}
-	channels, err := NewChannels(notification.Channels)
+	channel, err := NewChannel(notification.ChannelID)
 	if err != nil {
 		return Notification{}, err
 	}
@@ -38,7 +41,7 @@ func CheckNotificationProperties(notification Notification) (Notification, error
 	}
 	notification.Title = title
 	notification.Content = content
-	notification.Channels = channels
+	notification.ChannelID = channel
 	notification.Recipients = recipients
 	return notification, nil
 }
@@ -64,14 +67,9 @@ func NewRecipients(recipients []User) ([]User, error) {
 	return recipients, nil
 }
 
-func NewChannels(channels []Channel) ([]Channel, error) {
-	if len(channels) < 0 {
-		return []Channel{}, errors.New("notification must use at least one channel")
+func NewChannel(channelID uint) (uint, error) {
+	if channelID == 0 || channelID > 3 {
+		return 0, errors.New("must use a valid channel")
 	}
-	for _, channel := range channels {
-		if channel.ID == 0 || channel.ID > 3 {
-			return []Channel{}, errors.New("mush enter a valid channel")
-		}
-	}
-	return channels, nil
+	return channelID, nil
 }

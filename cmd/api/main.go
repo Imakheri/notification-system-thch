@@ -20,6 +20,7 @@ func main() {
 	db := repository.NewDatabase(cfg)
 
 	userRepository := repository.NewUserRepository(db)
+	channelRepository := repository.NewChannelRepository(db)
 	createUseCase := usecase.NewCreateUser(userRepository)
 
 	router.POST(prefix+"/users", middleware.NewAPIKey(cfg).ValidateAPIKey(), handlers.CreateUserHandler(createUseCase))
@@ -31,7 +32,7 @@ func main() {
 
 	//CREATE
 	notificationRepo := repository.NewNotificationRepository(db)
-	createNotificationUseCase := usecase.NewCreateNotificationUseCase(notificationRepo, userRepository)
+	createNotificationUseCase := usecase.NewCreateNotificationUseCase(notificationRepo, userRepository, channelRepository)
 	router.POST(prefix+"/notification", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.CreateNotificationHandler(createNotificationUseCase))
 
 	getNotificationsByUserUseCase := usecase.NewGetNotificationsByUserUseCase(notificationRepo)

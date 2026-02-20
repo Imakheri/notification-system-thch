@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"time"
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
@@ -64,6 +65,14 @@ func (nr *NotificationRepository) DoesNotificationExistsAndBelongsToUser(userID 
 	}
 	if notification.CreatedBy != userID {
 		return notification, errors.New("notification does not belong to user")
+	}
+	return notification, nil
+}
+
+func (nr *NotificationRepository) SetSentAt(notification entities.Notification, time time.Time) (entities.Notification, error) {
+	result := nr.db.DatabaseConnection.Model(&notification).Where("id = ?", notification.ID).Update("sent_at", time)
+	if result.Error != nil {
+		return entities.Notification{}, result.Error
 	}
 	return notification, nil
 }

@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 	"log"
+	"time"
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/entities/channels"
@@ -16,12 +17,14 @@ type CreateNotificationUseCase interface {
 type createNotificationUseCase struct {
 	userRepository         gateway.UserRepository
 	notificationRepository gateway.NotificationRepository
+	channelRepository      gateway.ChannelRepository
 }
 
-func NewCreateNotificationUseCase(notificationRepository gateway.NotificationRepository, userRepository gateway.UserRepository) CreateNotificationUseCase {
+func NewCreateNotificationUseCase(notificationRepository gateway.NotificationRepository, userRepository gateway.UserRepository, channelRepository gateway.ChannelRepository) CreateNotificationUseCase {
 	return &createNotificationUseCase{
 		notificationRepository: notificationRepository,
 		userRepository:         userRepository,
+		channelRepository:      channelRepository,
 	}
 }
 
@@ -30,6 +33,9 @@ func (cnu *createNotificationUseCase) Exec(userID uint, notification entities.No
 	if err != nil {
 		return entities.Notification{}, err
 	}
+
+	channel, err := cnu.channelRepository.GetChannel(notification.ChannelID)
+	notification.Channel = channel
 
 	for i, recipient := range notification.Recipients {
 		user, err := cnu.userRepository.GetUserByEmail(recipient.Email)
@@ -53,16 +59,18 @@ func (cnu *createNotificationUseCase) Exec(userID uint, notification entities.No
 			_, err := cnu.notificationRepository.DeleteNotificationByID(newNotification.ID)
 			return entities.Notification{}, err
 		}
-		for _, channel := range newNotification.Channels {
-			currentStrategy := strategySelector(channel.ID)
-			err = currentStrategy.Send(user, newNotification)
-			if err != nil {
-				_, errorDeleting := cnu.notificationRepository.DeleteNotificationByID(newNotification.ID)
-				if errorDeleting != nil {
-					return entities.Notification{}, errorDeleting
-				}
-				return entities.Notification{}, err
+		currentStrategy := strategySelector(notification.Channel.ID)
+		err = currentStrategy.Send(user, newNotification)
+		if err != nil {
+			_, errorDeleting := cnu.notificationRepository.DeleteNotificationByID(newNotification.ID)
+			if errorDeleting != nil {
+				return entities.Notification{}, errorDeleting
 			}
+			return entities.Notification{}, err
+		}
+		newNotification, err = cnu.notificationRepository.SetSentAt(newNotification, time.Now())
+		if err != nil {
+			return entities.Notification{}, err
 		}
 	}
 

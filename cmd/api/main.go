@@ -10,6 +10,7 @@ import (
 	"github.com/imakheri/notifications-thch/internal/infrastructure/delivery/handlers"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/middleware"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/repository"
+	"github.com/imakheri/notifications-thch/internal/infrastructure/service"
 )
 
 var prefix = "/api/v1/"
@@ -22,6 +23,7 @@ func main() {
 	userRepository := repository.NewUserRepository(db)
 	channelRepository := repository.NewChannelRepository(db)
 	createUseCase := usecase.NewCreateUser(userRepository)
+	simulatedApiService := service.NewSimulatedApiService()
 
 	router.POST(prefix+"/users", middleware.NewAPIKey(cfg).ValidateAPIKey(), handlers.CreateUserHandler(createUseCase))
 	getUserUseCase := usecase.NewGetUser(userRepository, cfg)
@@ -32,7 +34,7 @@ func main() {
 
 	//CREATE
 	notificationRepo := repository.NewNotificationRepository(db)
-	createNotificationUseCase := usecase.NewCreateNotificationUseCase(notificationRepo, userRepository, channelRepository)
+	createNotificationUseCase := usecase.NewCreateNotificationUseCase(notificationRepo, userRepository, channelRepository, simulatedApiService)
 	router.POST(prefix+"/notification", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.CreateNotificationHandler(createNotificationUseCase))
 
 	getNotificationsByUserUseCase := usecase.NewGetNotificationsByUserUseCase(notificationRepo)

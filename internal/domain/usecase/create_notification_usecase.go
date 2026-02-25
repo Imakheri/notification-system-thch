@@ -6,29 +6,31 @@ import (
 	"time"
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
-	"github.com/imakheri/notifications-thch/internal/domain/entities/channels"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
+	"github.com/imakheri/notifications-thch/internal/infrastructure/strategies"
 )
 
 type CreateNotificationUseCase interface {
-	Exec(userID uint, notification entities.Notification) (entities.Notification, error)
+	Exec(userID uint, userEmail string, notification entities.Notification) (entities.Notification, error)
 }
 
 type createNotificationUseCase struct {
 	userRepository         gateway.UserRepository
 	notificationRepository gateway.NotificationRepository
 	channelRepository      gateway.ChannelRepository
+	simulatedApiService    gateway.SimulatedApiService
 }
 
-func NewCreateNotificationUseCase(notificationRepository gateway.NotificationRepository, userRepository gateway.UserRepository, channelRepository gateway.ChannelRepository) CreateNotificationUseCase {
+func NewCreateNotificationUseCase(notificationRepository gateway.NotificationRepository, userRepository gateway.UserRepository, channelRepository gateway.ChannelRepository, simulatedApiService gateway.SimulatedApiService) CreateNotificationUseCase {
 	return &createNotificationUseCase{
 		notificationRepository: notificationRepository,
 		userRepository:         userRepository,
 		channelRepository:      channelRepository,
+		simulatedApiService:    simulatedApiService,
 	}
 }
 
-func (cnu *createNotificationUseCase) Exec(userID uint, notification entities.Notification) (entities.Notification, error) {
+func (cnu *createNotificationUseCase) Exec(userID uint, userEmail string, notification entities.Notification) (entities.Notification, error) {
 	notification, err := entities.CheckNotificationProperties(notification)
 	if err != nil {
 		return entities.Notification{}, err
@@ -48,19 +50,23 @@ func (cnu *createNotificationUseCase) Exec(userID uint, notification entities.No
 		notification.Recipients[i].ID = user.ID
 	}
 
+	sender, err := cnu.userRepository.GetUserByEmail(userEmail)
+	if err != nil {
+		return entities.Notification{}, errors.New("cannot get sender information")
+	}
+
 	newNotification, err := cnu.notificationRepository.CreateNotification(userID, notification)
 	if err != nil {
 		return entities.Notification{}, err
 	}
-
 	for _, recipient := range newNotification.Recipients {
 		user, err := cnu.userRepository.GetUserByEmail(recipient.Email)
 		if err != nil {
 			_, err := cnu.notificationRepository.DeleteNotificationByID(newNotification.ID)
 			return entities.Notification{}, err
 		}
-		currentStrategy := strategySelector(notification.Channel.ID)
-		err = currentStrategy.Send(user, newNotification)
+		currentStrategy := cnu.strategySelector(notification.Channel.ID)
+		_, err = currentStrategy.Send(sender.Email, user, newNotification)
 		if err != nil {
 			_, errorDeleting := cnu.notificationRepository.DeleteNotificationByID(newNotification.ID)
 			if errorDeleting != nil {
@@ -77,15 +83,15 @@ func (cnu *createNotificationUseCase) Exec(userID uint, notification entities.No
 	return newNotification, nil
 }
 
-func strategySelector(idStrategy uint) entities.NotificationStrategy {
+func (cnu *createNotificationUseCase) strategySelector(idStrategy uint) entities.NotificationStrategy {
 	var selectedStrategy entities.NotificationStrategy
 	switch idStrategy {
 	case 1:
-		selectedStrategy = channels.NewEmailStrategy()
+		selectedStrategy = strategies.NewEmailStrategy(cnu.simulatedApiService)
 	case 2:
-		selectedStrategy = channels.NewSMSStrategy()
+		selectedStrategy = strategies.NewSMSStrategy(cnu.simulatedApiService)
 	case 3:
-		selectedStrategy = channels.NewPushStrategy()
+		selectedStrategy = strategies.NewPushStrategy(cnu.simulatedApiService)
 	default:
 		log.Fatal("Unknown strategy")
 	}

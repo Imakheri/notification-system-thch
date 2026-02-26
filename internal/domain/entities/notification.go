@@ -19,7 +19,7 @@ type Notification struct {
 }
 
 type NotificationStrategy interface {
-	Send(User, Notification) error
+	Send(string, User, Notification) (int, error)
 }
 
 func CheckNotificationProperties(notification Notification) (Notification, error) {

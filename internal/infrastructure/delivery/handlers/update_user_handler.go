@@ -17,7 +17,7 @@ func UpdateUserHandler(updateUserUseCase usecase.UpdateUserUseCase) func(ctx *gi
 		}
 		userEmail, ok := ctx.Get("email")
 		if !ok {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "can not get user id"})
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "can not get user email"})
 		}
 		user, err := updateUserUseCase.Exec(userEmail.(string), user)
 		if err != nil {

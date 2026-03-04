@@ -31,13 +31,8 @@ func NewCreateNotificationUseCase(notificationRepository gateway.NotificationRep
 }
 
 func (cnu *createNotificationUseCase) Exec(userID uint, userEmail string, notification entities.Notification) (entities.Notification, error) {
-	notification, err := entities.CheckNotificationProperties(notification)
-	if err != nil {
-		return entities.Notification{}, err
-	}
-
 	channel, err := cnu.channelRepository.GetChannel(notification.ChannelID)
-	notification.Channel = channel
+	notification.ChannelID = channel.ID
 
 	for i, recipient := range notification.Recipients {
 		user, err := cnu.userRepository.GetUserByEmail(recipient.Email)
@@ -65,7 +60,7 @@ func (cnu *createNotificationUseCase) Exec(userID uint, userEmail string, notifi
 			_, err := cnu.notificationRepository.DeleteNotificationByID(newNotification.ID)
 			return entities.Notification{}, err
 		}
-		currentStrategy := cnu.strategySelector(notification.Channel.ID)
+		currentStrategy := cnu.strategySelector(notification.ChannelID)
 		_, err = currentStrategy.Send(sender.Email, user, newNotification)
 		if err != nil {
 			_, errorDeleting := cnu.notificationRepository.DeleteNotificationByID(newNotification.ID)

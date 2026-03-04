@@ -27,17 +27,15 @@ func NewGetUser(repository gateway.UserRepository, cfg *config.Config) GetUser {
 	}
 }
 
-func (g *getUser) Exec(userRequest entities.User) (entities.User, error) {
-	user, err := g.repository.GetUserByEmail(userRequest.Email)
+func (g *getUser) Exec(userInput entities.User) (entities.User, error) {
+	user, err := g.repository.GetUserByEmail(userInput.Email)
 	if err != nil {
 		return entities.User{}, errors.New("the e-mail address or password is incorrect")
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userRequest.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userInput.Password))
 	if err != nil {
 		return entities.User{}, errors.New("the e-mail address or password is incorrect")
 	}
-
-	user.Password = ""
 
 	token, err := service.NewJWTService(g.config).GenerateToken(user.Email, user.ID)
 

@@ -28,11 +28,6 @@ func (cu createUserUseCase) Exec(user entities.User) (entities.User, error) {
 		return entities.User{}, errors.New("user already exists")
 	}
 
-	user, err = entities.CheckUserProperties(user)
-	if err != nil {
-		return entities.User{}, err
-	}
-
 	bytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		return entities.User{}, errors.New("failed to encrypt password")
@@ -43,6 +38,6 @@ func (cu createUserUseCase) Exec(user entities.User) (entities.User, error) {
 	if err != nil {
 		return entities.User{}, err
 	}
-	newUser.Password = ""
+
 	return newUser, nil
 }

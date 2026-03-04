@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/imakheri/notifications-thch/internal/domain/usecase"
+	"github.com/imakheri/notifications-thch/internal/infrastructure/delivery/handlers/dtos"
 )
 
 func GetNotificationsByUserIDHandler(GetNotificationByUserUseCase usecase.GetNotificationsByUserUseCase) func(ctx *gin.Context) {
@@ -19,6 +20,11 @@ func GetNotificationsByUserIDHandler(GetNotificationByUserUseCase usecase.GetNot
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{"notifications": notifications})
+		var response []dtos.NotificationResponseDTO
+		for _, notification := range notifications {
+			response = append(response, dtos.NotificationToDto(notification))
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"notifications": response})
 	}
 }

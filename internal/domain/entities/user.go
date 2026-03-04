@@ -6,51 +6,50 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
-
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
-	Name          string         `gorm:"type:varchar(100); not null" json:"name"`
-	Password      string         `gorm:"type:varchar(100); not null" json:"password"`
-	Email         string         `gorm:"type:varchar(100); not null" json:"email"`
-	Phone         string         `gorm:"type:varchar(100)" json:"phone"`
-	DeviceToken   string         `gorm:"type:varchar(100)" json:"device_token"`
-	Notifications []Notification `gorm:"many2many:notification_recipients;" json:"notifications"`
+	ID            uint
+	Name          string
+	Password      string
+	Email         string
+	Phone         string
+	DeviceToken   string
+	Notifications []Notification
 }
 
-func CheckUserProperties(user User) (User, error) {
-	name, err := NewName(user.Name)
+func NewUser(name, password, email, phone, deviceToken string) (User, error) {
+	validName, err := NewName(name)
 	if err != nil {
 		return User{}, err
 	}
-	password, err := NewPassword(user.Password)
+	validPassword, err := NewPassword(password)
 	if err != nil {
 		return User{}, err
 	}
-	email, err := NewEmail(user.Email)
+	validEmail, err := NewEmail(email)
 	if err != nil {
 		return User{}, err
 	}
-	phone, err := NewPhone(user.Phone)
+	validPhone, err := NewPhone(phone)
 	if err != nil {
 		return User{}, err
 	}
-	deviceToken, err := NewDeviceToken(user.DeviceToken)
+	validDeviceToken, err := NewDeviceToken(deviceToken)
 	if err != nil {
 		return User{}, err
 	}
-	user.Name = name
-	user.Password = password
-	user.Email = email
-	user.Phone = phone
-	user.DeviceToken = deviceToken
-	return user, nil
+	return User{
+		Name:        validName,
+		Password:    validPassword,
+		Email:       validEmail,
+		Phone:       validPhone,
+		DeviceToken: validDeviceToken,
+	}, nil
 }
 
 func NewName(name string) (string, error) {
-	if len(name) <= 0 || len(name) >= 20 {
+	if len(name) <= 0 || len(name) >= 25 {
 		return "", errors.New("invalid name structure")
 	}
 	return name, nil
@@ -59,7 +58,7 @@ func NewName(name string) (string, error) {
 func NewEmail(email string) (string, error) {
 	email = strings.ToLower(email)
 
-	if !strings.Contains(email, "@") || !strings.Contains(email, ".") {
+	if !strings.Contains(email, "@") || !strings.Contains(email, ".") || len(email) < 10 {
 		return "", errors.New("invalid email structure")
 	}
 
@@ -114,4 +113,75 @@ func NewDeviceToken(deviceToken string) (string, error) {
 		return "", errors.New("invalid device token structure")
 	}
 	return deviceToken, nil
+}
+
+func UpdateUser(name, password, phone, deviceToken string) (User, error) {
+	validName, err := UpdateName(name)
+	if err != nil {
+		return User{}, err
+	}
+	validPassword, err := UpdatePassword(password)
+	if err != nil {
+		return User{}, err
+	}
+	validPhone, err := UpdatePhone(phone)
+	if err != nil {
+		return User{}, err
+	}
+	return User{
+		Name:        validName,
+		Password:    validPassword,
+		Phone:       validPhone,
+		DeviceToken: deviceToken,
+	}, nil
+}
+
+func UpdateName(name string) (string, error) {
+	if len(name) >= 25 {
+		return "", errors.New("invalid name structure")
+	}
+	return name, nil
+}
+
+func UpdatePassword(password string) (string, error) {
+	if len(password) == 0 {
+		return "", nil
+	}
+
+	if len(password) > 20 {
+		return "", errors.New("password must be less than 20 characters")
+	}
+
+	var (
+		hasUppercase bool
+		hasLowercase bool
+		hasDigit     bool
+		hasSymbol    bool
+	)
+
+	for _, char := range password {
+		switch {
+		case unicode.IsUpper(char):
+			hasUppercase = true
+		case unicode.IsLower(char):
+			hasLowercase = true
+		case unicode.IsDigit(char):
+			hasDigit = true
+		case unicode.IsPunct(char) || unicode.IsSymbol(char):
+			hasSymbol = true
+		}
+	}
+
+	if !hasUppercase || !hasLowercase || !hasDigit || !hasSymbol {
+		return "", errors.New(fmt.Sprintf("password must contain at least one upper case and one lower case character, one digit and one special character"))
+	}
+
+	return password, nil
+}
+
+func UpdatePhone(phone string) (string, error) {
+	if len(phone) >= 12 {
+		return "", errors.New("invalid phone structure")
+	}
+	return phone, nil
 }

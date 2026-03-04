@@ -6,6 +6,7 @@ import (
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
+	"github.com/imakheri/notifications-thch/internal/infrastructure/repository/dtos"
 )
 
 type NotificationRepository struct {
@@ -19,30 +20,37 @@ func NewNotificationRepository(db *Database) gateway.NotificationRepository {
 }
 
 func (nr *NotificationRepository) CreateNotification(userID uint, notification entities.Notification) (entities.Notification, error) {
-	var user entities.User
-	result := nr.db.DatabaseConnection.First(&user, userID)
+	var userModel dtos.UserModel
+	result := nr.db.DatabaseConnection.First(&userModel, userID)
 	if result.Error != nil {
 		return entities.Notification{}, errors.New("user not found")
 	}
-	notification.CreatedBy = userID
-	result = nr.db.DatabaseConnection.Create(&notification)
+	notificationModel := dtos.NotificationToModel(notification)
+	notificationModel.CreatedBy = userID
+	result = nr.db.DatabaseConnection.Create(&notificationModel)
 	if result.Error != nil {
 		return entities.Notification{}, result.Error
 	}
-	return notification, nil
+	modelEntity := dtos.NotificationModelToEntity(notificationModel)
+	return modelEntity, nil
 }
 
 func (nr *NotificationRepository) GetNotificationsByUser(userID uint) ([]entities.Notification, error) {
-	var notifications []entities.Notification
-	result := nr.db.DatabaseConnection.Find(&notifications, "created_by = ?", userID)
+	var notifications []dtos.NotificationModel
+	result := nr.db.DatabaseConnection.Preload("Recipients").Find(&notifications, "created_by = ?", userID)
 	if result.Error != nil {
 		return []entities.Notification{}, result.Error
 	}
-	return notifications, nil
+	var notificationsEntities []entities.Notification
+	for _, notification := range notifications {
+		notificationsEntities = append(notificationsEntities, dtos.NotificationModelToEntity(notification))
+	}
+	return notificationsEntities, nil
 }
 
 func (nr *NotificationRepository) DeleteNotificationByID(notificationID uint) (uint, error) {
-	result := nr.db.DatabaseConnection.Delete(&entities.Notification{}, notificationID)
+	var notificationModel dtos.NotificationModel
+	result := nr.db.DatabaseConnection.Delete(&notificationModel, notificationID)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -50,29 +58,38 @@ func (nr *NotificationRepository) DeleteNotificationByID(notificationID uint) (u
 }
 
 func (nr *NotificationRepository) UpdateNotification(notification entities.Notification) (entities.Notification, error) {
-	result := nr.db.DatabaseConnection.Save(&notification)
+	notificationModel := dtos.NotificationToModel(notification)
+	result := nr.db.DatabaseConnection.Model(&notificationModel).Where("id = ?", notificationModel.ID).Updates(notificationModel)
 	if result.Error != nil {
 		return entities.Notification{}, result.Error
 	}
-	return notification, nil
+	result = nr.db.DatabaseConnection.First(&notificationModel, notificationModel.ID)
+	if result.Error != nil {
+		return entities.Notification{}, result.Error
+	}
+	modelEntity := dtos.NotificationModelToEntity(notificationModel)
+	return modelEntity, nil
 }
 
 func (nr *NotificationRepository) DoesNotificationExistsAndBelongsToUser(userID uint, notificationID uint) (entities.Notification, error) {
-	var notification entities.Notification
-	result := nr.db.DatabaseConnection.First(&notification, notificationID)
+	var notificationModel dtos.NotificationModel
+	result := nr.db.DatabaseConnection.First(&notificationModel, notificationID)
 	if result.Error != nil {
-		return notification, errors.New("notification not found")
+		return entities.Notification{}, errors.New("notification not found")
 	}
-	if notification.CreatedBy != userID {
-		return notification, errors.New("notification does not belong to user")
+	if notificationModel.CreatedBy != userID {
+		return entities.Notification{}, errors.New("notification does not belong to user")
 	}
-	return notification, nil
+	notificationEntity := dtos.NotificationModelToEntity(notificationModel)
+	return notificationEntity, nil
 }
 
 func (nr *NotificationRepository) SetSentAt(notification entities.Notification, time time.Time) (entities.Notification, error) {
-	result := nr.db.DatabaseConnection.Model(&notification).Where("id = ?", notification.ID).Update("sent_at", time)
+	notificationModel := dtos.NotificationToModel(notification)
+	result := nr.db.DatabaseConnection.Model(&notificationModel).Where("id = ?", notificationModel.ID).Update("sent_at", time)
 	if result.Error != nil {
 		return entities.Notification{}, result.Error
 	}
-	return notification, nil
+	modelEntity := dtos.NotificationModelToEntity(notificationModel)
+	return modelEntity, nil
 }

@@ -7,8 +7,8 @@ import (
 	"os"
 
 	"github.com/imakheri/notifications-thch/config"
-	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/repository"
+	"github.com/imakheri/notifications-thch/internal/infrastructure/repository/dtos"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 
 	if *migrate || *all {
 		fmt.Println("Executing AutoMigrate...")
-		err := db.DatabaseConnection.AutoMigrate(&entities.User{}, &entities.Channel{}, &entities.Notification{})
+		err := db.DatabaseConnection.AutoMigrate(&dtos.UserModel{}, &dtos.ChannelModel{}, &dtos.NotificationModel{})
 		if err != nil {
 			log.Fatalf("AutoMigrate error: %v", err)
 		}

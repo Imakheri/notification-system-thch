@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
+	"github.com/imakheri/notifications-thch/internal/infrastructure/repository/dtos"
 )
 
 type channelRepository struct {
@@ -16,10 +17,11 @@ func NewChannelRepository(db *Database) gateway.ChannelRepository {
 }
 
 func (cr *channelRepository) GetChannel(channelID uint) (entities.Channel, error) {
-	var channel entities.Channel
-	result := cr.db.DatabaseConnection.Where("id = ?", channelID).First(&channel)
+	var channelModel dtos.ChannelModel
+	result := cr.db.DatabaseConnection.Where("id = ?", channelID).First(&channelModel)
 	if result.Error != nil {
 		return entities.Channel{}, result.Error
 	}
-	return channel, nil
+	channelEntity := dtos.ChannelModelToEntity(channelModel)
+	return channelEntity, nil
 }

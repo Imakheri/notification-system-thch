@@ -3,7 +3,6 @@ package strategies
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"html/template"
 	"net/http"
 	"path/filepath"
@@ -37,8 +36,7 @@ func (es *EmailStrategy) Send(sender string, recipient entities.User, notificati
 		return 0, err
 	}
 	emailTemplateDTO := toEmailTemplateDTO(sender, notification)
-	tpm, err := generateEmailTemplate(emailTemplateDTO)
-	fmt.Println(tpm)
+	_, err = generateEmailTemplate(emailTemplateDTO)
 	maxRetries := 3
 	var status int
 	for i := 0; i < maxRetries; i++ {

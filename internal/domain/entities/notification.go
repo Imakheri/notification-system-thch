@@ -3,47 +3,45 @@ package entities
 import (
 	"errors"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type Notification struct {
-	gorm.Model
-	CreatedBy  uint       `gorm:"not null" json:"created_by"`
-	SentAt     *time.Time `json:"sent_at"`
-	Title      string     `gorm:"type:varchar(100); not null" json:"title"`
-	Content    string     `gorm:"not null" json:"content"`
-	ChannelID  uint       `json:"channel_id"`
-	Channel    Channel    `json:"channel"`
-	Recipients []User     `gorm:"many2many:notification_recipients;" json:"recipients"`
+	ID         uint
+	CreatedBy  uint
+	SentAt     *time.Time
+	Title      string
+	Content    string
+	ChannelID  uint
+	Recipients []User
 }
 
 type NotificationStrategy interface {
 	Send(string, User, Notification) (int, error)
 }
 
-func CheckNotificationProperties(notification Notification) (Notification, error) {
-	title, err := NewTitle(notification.Title)
+func NewNotification(title string, content string, channelID uint, recipients []User) (Notification, error) {
+	validTitle, err := NewTitle(title)
 	if err != nil {
 		return Notification{}, err
 	}
-	content, err := NewContent(notification.Content)
+	validContent, err := NewContent(content)
 	if err != nil {
 		return Notification{}, err
 	}
-	channel, err := NewChannel(notification.ChannelID)
+	validChannel, err := NewChannel(channelID)
 	if err != nil {
 		return Notification{}, err
 	}
-	recipients, err := NewRecipients(notification.Recipients)
+	validRecipients, err := NewRecipients(recipients)
 	if err != nil {
 		return Notification{}, err
 	}
-	notification.Title = title
-	notification.Content = content
-	notification.ChannelID = channel
-	notification.Recipients = recipients
-	return notification, nil
+	return Notification{
+		Title:      validTitle,
+		Content:    validContent,
+		ChannelID:  validChannel,
+		Recipients: validRecipients,
+	}, nil
 }
 
 func NewTitle(title string) (string, error) {
@@ -72,4 +70,17 @@ func NewChannel(channelID uint) (uint, error) {
 		return 0, errors.New("must use a valid channel")
 	}
 	return channelID, nil
+}
+
+func UpdateNotification(title string, content string, channelID uint, recipients []User) (Notification, error) {
+	validChannel, err := NewChannel(channelID)
+	if err != nil {
+		return Notification{}, err
+	}
+	return Notification{
+		Title:      title,
+		Content:    content,
+		ChannelID:  validChannel,
+		Recipients: recipients,
+	}, nil
 }

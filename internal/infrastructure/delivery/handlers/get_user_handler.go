@@ -8,7 +8,7 @@ import (
 	"github.com/imakheri/notifications-thch/internal/infrastructure/delivery/handlers/dtos"
 )
 
-func GetUserHandler(useCase usecase.GetUser) func(ctx *gin.Context) {
+func GetUserHandler(useCase usecase.GetUserUseCase) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		var input dtos.GetUserDTO
 		if err := ctx.ShouldBind(&input); err != nil {

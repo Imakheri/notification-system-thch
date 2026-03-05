@@ -10,24 +10,24 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type GetUser interface {
+type GetUserUseCase interface {
 	Exec(user entities.User) (entities.User, error)
 }
 
-type getUser struct {
+type getUserUseCase struct {
 	repository  gateway.UserRepository
 	jwt_service gateway.JwTokenService
 	config      *config.Config
 }
 
-func NewGetUser(repository gateway.UserRepository, cfg *config.Config) GetUser {
-	return &getUser{
+func NewGetUser(repository gateway.UserRepository, cfg *config.Config) GetUserUseCase {
+	return &getUserUseCase{
 		repository: repository,
 		config:     cfg,
 	}
 }
 
-func (g *getUser) Exec(userInput entities.User) (entities.User, error) {
+func (g *getUserUseCase) Exec(userInput entities.User) (entities.User, error) {
 	user, err := g.repository.GetUserByEmail(userInput.Email)
 	if err != nil {
 		return entities.User{}, errors.New("the e-mail address or password is incorrect")

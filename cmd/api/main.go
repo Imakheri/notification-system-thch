@@ -7,13 +7,10 @@ import (
 	_ "github.com/gin-gonic/gin"
 	"github.com/imakheri/notifications-thch/config"
 	"github.com/imakheri/notifications-thch/internal/domain/usecase"
-	"github.com/imakheri/notifications-thch/internal/infrastructure/delivery/handlers"
-	"github.com/imakheri/notifications-thch/internal/infrastructure/middleware"
+	"github.com/imakheri/notifications-thch/internal/infrastructure/delivery/routes"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/repository"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/service"
 )
-
-var prefix = "/api/v1/"
 
 func main() {
 	router := gin.Default()
@@ -21,31 +18,33 @@ func main() {
 	db := repository.NewDatabase(cfg)
 
 	userRepository := repository.NewUserRepository(db)
+	notificationRepository := repository.NewNotificationRepository(db)
 	channelRepository := repository.NewChannelRepository(db)
-	createUseCase := usecase.NewCreateUser(userRepository)
+
 	simulatedApiService := service.NewSimulatedApiService()
 
-	router.POST(prefix+"/users", middleware.NewAPIKey(cfg).ValidateAPIKey(), handlers.CreateUserHandler(createUseCase))
+	createUserUseCase := usecase.NewCreateUser(userRepository)
 	getUserUseCase := usecase.NewGetUser(userRepository, cfg)
-	router.POST(prefix+"/user", middleware.NewAPIKey(cfg).ValidateAPIKey(), handlers.GetUserHandler(getUserUseCase))
-	//UPDATE USER
-	updateUserUsecase := usecase.NewUpdateUserUseCase(userRepository)
-	router.PUT(prefix+"/user", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.UpdateUserHandler(updateUserUsecase))
+	updateUserUseCase := usecase.NewUpdateUserUseCase(userRepository)
 
-	//CREATE
-	notificationRepo := repository.NewNotificationRepository(db)
-	createNotificationUseCase := usecase.NewCreateNotificationUseCase(notificationRepo, userRepository, channelRepository, simulatedApiService)
-	router.POST(prefix+"/notification", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.CreateNotificationHandler(createNotificationUseCase))
+	createNotificationUseCase := usecase.NewCreateNotificationUseCase(notificationRepository, userRepository, channelRepository, simulatedApiService)
+	getNotificationsByUserUseCase := usecase.NewGetNotificationsByUserUseCase(notificationRepository)
+	updateNotificationUseCase := usecase.NewUpdateNotificationUseCase(notificationRepository, userRepository)
+	deleteNotificationUseCase := usecase.NewDeleteNotification(notificationRepository)
 
-	getNotificationsByUserUseCase := usecase.NewGetNotificationsByUserUseCase(notificationRepo)
-	//READ
-	router.GET(prefix+"/notifications", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.GetNotificationsByUserIDHandler(getNotificationsByUserUseCase))
-	//UPDATE
-	updateNotificationUseCase := usecase.NewUpdateNotificationUseCase(notificationRepo, userRepository)
-	router.PUT(prefix+"/notification/:id", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.UpdateNotificationHandler(updateNotificationUseCase))
-	//DELETE
-	deleteNotificationUsecase := usecase.NewDeleteNotification(notificationRepo)
-	router.DELETE(prefix+"/notification/:id", middleware.NewAPIKey(cfg).ValidateAPIKey(), middleware.NewAuthorizeJWT(cfg).AuthorizeJWT(), handlers.DeleteNotificationHandler(deleteNotificationUsecase))
+	dependencies := routes.AppDependencies{
+		Router:                       router,
+		Cfg:                          cfg,
+		CreateUserUseCase:            createUserUseCase,
+		GetUserUseCase:               getUserUseCase,
+		UpdateUserUseCase:            updateUserUseCase,
+		CreateNotificationUseCase:    createNotificationUseCase,
+		GetNotificationByUserUseCase: getNotificationsByUserUseCase,
+		UpdateNotificationUseCase:    updateNotificationUseCase,
+		DeleteNotificationUseCase:    deleteNotificationUseCase,
+	}
+
+	routes.SetupRoutes(dependencies)
 
 	log.Fatal(router.Run())
 }

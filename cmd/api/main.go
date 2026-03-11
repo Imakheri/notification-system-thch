@@ -7,6 +7,7 @@ import (
 	_ "github.com/gin-gonic/gin"
 	"github.com/imakheri/notifications-thch/config"
 	"github.com/imakheri/notifications-thch/internal/domain/usecase"
+	"github.com/imakheri/notifications-thch/internal/infrastructure"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/delivery/routes"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/repository"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/service"
@@ -16,21 +17,23 @@ func main() {
 	router := gin.Default()
 	cfg := config.Load()
 	db := repository.NewDatabase(cfg)
+	realClock := infrastructure.RealClock{}
 
 	userRepository := repository.NewUserRepository(db)
 	notificationRepository := repository.NewNotificationRepository(db)
 	channelRepository := repository.NewChannelRepository(db)
 
 	simulatedApiService := service.NewSimulatedApiService()
+	jwtService := service.NewJWTService(cfg)
 
-	createUserUseCase := usecase.NewCreateUser(userRepository)
-	getUserUseCase := usecase.NewGetUser(userRepository, cfg)
+	createUserUseCase := usecase.NewCreateUserUseCase(userRepository)
+	getUserUseCase := usecase.NewGetUserUseCase(userRepository, jwtService)
 	updateUserUseCase := usecase.NewUpdateUserUseCase(userRepository)
 
-	createNotificationUseCase := usecase.NewCreateNotificationUseCase(notificationRepository, userRepository, channelRepository, simulatedApiService)
+	createNotificationUseCase := usecase.NewCreateNotificationUseCase(notificationRepository, userRepository, channelRepository, simulatedApiService, realClock)
 	getNotificationsByUserUseCase := usecase.NewGetNotificationsByUserUseCase(notificationRepository)
 	updateNotificationUseCase := usecase.NewUpdateNotificationUseCase(notificationRepository, userRepository)
-	deleteNotificationUseCase := usecase.NewDeleteNotification(notificationRepository)
+	deleteNotificationUseCase := usecase.NewDeleteNotificationUseCase(notificationRepository)
 
 	dependencies := routes.AppDependencies{
 		Router:                       router,

@@ -12,7 +12,7 @@ type deleteNotificationUseCase struct {
 	deleteNotificationRepository gateway.NotificationRepository
 }
 
-func NewDeleteNotification(deleteNotificationRepository gateway.NotificationRepository) DeleteNotificationUseCase {
+func NewDeleteNotificationUseCase(deleteNotificationRepository gateway.NotificationRepository) DeleteNotificationUseCase {
 	return &deleteNotificationUseCase{
 		deleteNotificationRepository: deleteNotificationRepository,
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/repository/dtos"
+	"gorm.io/gorm"
 )
 
 type NotificationRepository struct {
@@ -22,8 +23,11 @@ func NewNotificationRepository(db *Database) gateway.NotificationRepository {
 func (nr *NotificationRepository) CreateNotification(userID uint, notification entities.Notification) (entities.Notification, error) {
 	var userModel dtos.UserModel
 	result := nr.db.DatabaseConnection.First(&userModel, userID)
-	if result.Error != nil {
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return entities.Notification{}, errors.New("user not found")
+	}
+	if result.Error != nil {
+		return entities.Notification{}, result.Error
 	}
 	notificationModel := dtos.NotificationToModel(notification)
 	notificationModel.CreatedBy = userID
@@ -38,6 +42,9 @@ func (nr *NotificationRepository) CreateNotification(userID uint, notification e
 func (nr *NotificationRepository) GetNotificationsByUser(userID uint) ([]entities.Notification, error) {
 	var notifications []dtos.NotificationModel
 	result := nr.db.DatabaseConnection.Preload("Recipients").Find(&notifications, "created_by = ?", userID)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return []entities.Notification{}, errors.New("user has no notifications")
+	}
 	if result.Error != nil {
 		return []entities.Notification{}, result.Error
 	}
@@ -64,6 +71,9 @@ func (nr *NotificationRepository) UpdateNotification(notification entities.Notif
 		return entities.Notification{}, result.Error
 	}
 	result = nr.db.DatabaseConnection.First(&notificationModel, notificationModel.ID)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return entities.Notification{}, errors.New("notification not found")
+	}
 	if result.Error != nil {
 		return entities.Notification{}, result.Error
 	}
@@ -74,8 +84,11 @@ func (nr *NotificationRepository) UpdateNotification(notification entities.Notif
 func (nr *NotificationRepository) DoesNotificationExistsAndBelongsToUser(userID uint, notificationID uint) (entities.Notification, error) {
 	var notificationModel dtos.NotificationModel
 	result := nr.db.DatabaseConnection.First(&notificationModel, notificationID)
-	if result.Error != nil {
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return entities.Notification{}, errors.New("notification not found")
+	}
+	if result.Error != nil {
+		return entities.Notification{}, result.Error
 	}
 	if notificationModel.CreatedBy != userID {
 		return entities.Notification{}, errors.New("notification does not belong to user")

@@ -16,11 +16,14 @@ func GetUserHandler(useCase usecase.GetUserUseCase) func(ctx *gin.Context) {
 			return
 		}
 		userEntity := dtos.GetUserToEntity(input)
-		user, err := useCase.Exec(userEntity)
+		user, token, err := useCase.Exec(userEntity)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		ctx.JSON(http.StatusOK, gin.H{"user": dtos.UserResponseToDTO(user)})
+		ctx.JSON(http.StatusOK, gin.H{
+			"user":  dtos.UserResponseToDTO(user),
+			"token": token,
+		})
 	}
 }

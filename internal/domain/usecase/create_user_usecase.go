@@ -13,17 +13,17 @@ type CreateUserUseCase interface {
 }
 
 type createUserUseCase struct {
-	repository gateway.UserRepository
+	userRepository gateway.UserRepository
 }
 
-func NewCreateUser(repository gateway.UserRepository) CreateUserUseCase {
+func NewCreateUserUseCase(repository gateway.UserRepository) CreateUserUseCase {
 	return &createUserUseCase{
-		repository: repository,
+		userRepository: repository,
 	}
 }
 
 func (cu createUserUseCase) Exec(user entities.User) (entities.User, error) {
-	_, err := cu.repository.GetUserByEmail(user.Email)
+	_, err := cu.userRepository.GetUserByEmail(user.Email)
 	if err == nil {
 		return entities.User{}, errors.New("user already exists")
 	}
@@ -34,7 +34,7 @@ func (cu createUserUseCase) Exec(user entities.User) (entities.User, error) {
 	}
 	user.Password = string(bytes)
 
-	newUser, err := cu.repository.CreateUser(user)
+	newUser, err := cu.userRepository.CreateUser(user)
 	if err != nil {
 		return entities.User{}, err
 	}

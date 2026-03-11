@@ -3,7 +3,6 @@ package usecase
 import (
 	"errors"
 	"log"
-	"time"
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
@@ -19,14 +18,16 @@ type createNotificationUseCase struct {
 	notificationRepository gateway.NotificationRepository
 	channelRepository      gateway.ChannelRepository
 	simulatedApiService    gateway.SimulatedApiService
+	clock                  gateway.Clock
 }
 
-func NewCreateNotificationUseCase(notificationRepository gateway.NotificationRepository, userRepository gateway.UserRepository, channelRepository gateway.ChannelRepository, simulatedApiService gateway.SimulatedApiService) CreateNotificationUseCase {
+func NewCreateNotificationUseCase(notificationRepository gateway.NotificationRepository, userRepository gateway.UserRepository, channelRepository gateway.ChannelRepository, simulatedApiService gateway.SimulatedApiService, clock gateway.Clock) CreateNotificationUseCase {
 	return &createNotificationUseCase{
 		notificationRepository: notificationRepository,
 		userRepository:         userRepository,
 		channelRepository:      channelRepository,
 		simulatedApiService:    simulatedApiService,
+		clock:                  clock,
 	}
 }
 
@@ -69,10 +70,10 @@ func (cnu *createNotificationUseCase) Exec(userID uint, userEmail string, notifi
 			}
 			return entities.Notification{}, err
 		}
-		newNotification, err = cnu.notificationRepository.SetSentAt(newNotification, time.Now())
-		if err != nil {
-			return entities.Notification{}, err
-		}
+	}
+	newNotification, err = cnu.notificationRepository.SetSentAt(newNotification, cnu.clock.Now())
+	if err != nil {
+		return entities.Notification{}, err
 	}
 
 	return newNotification, nil

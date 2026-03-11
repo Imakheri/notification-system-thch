@@ -12,19 +12,19 @@ type UpdateNotificationUseCase interface {
 }
 
 type updateNotificationUseCase struct {
-	updateNotificationRepository gateway.NotificationRepository
-	userRepository               gateway.UserRepository
+	notificationRepository gateway.NotificationRepository
+	userRepository         gateway.UserRepository
 }
 
 func NewUpdateNotificationUseCase(updateNotificationRepository gateway.NotificationRepository, userRepository gateway.UserRepository) UpdateNotificationUseCase {
 	return &updateNotificationUseCase{
-		updateNotificationRepository: updateNotificationRepository,
-		userRepository:               userRepository,
+		notificationRepository: updateNotificationRepository,
+		userRepository:         userRepository,
 	}
 }
 
 func (u *updateNotificationUseCase) Exec(userID uint, notificationID int, notification entities.Notification) (entities.Notification, error) {
-	notificationFromDB, err := u.updateNotificationRepository.DoesNotificationExistsAndBelongsToUser(userID, uint(notificationID))
+	notificationFromDB, err := u.notificationRepository.DoesNotificationExistsAndBelongsToUser(userID, uint(notificationID))
 	if err != nil {
 		return entities.Notification{}, err
 	}
@@ -44,7 +44,7 @@ func (u *updateNotificationUseCase) Exec(userID uint, notificationID int, notifi
 		}
 	}
 
-	updatedNotification, err := u.updateNotificationRepository.UpdateNotification(notification)
+	updatedNotification, err := u.notificationRepository.UpdateNotification(notification)
 	if err != nil {
 		return entities.Notification{}, err
 	}

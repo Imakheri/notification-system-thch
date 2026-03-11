@@ -3,6 +3,7 @@ package entities
 import (
 	"errors"
 	"time"
+	"unicode"
 )
 
 type Notification struct {
@@ -48,6 +49,22 @@ func NewTitle(title string) (string, error) {
 	if len(title) == 0 {
 		return "", errors.New("notification must have a title")
 	}
+	if len(title) < 10 {
+		return "", errors.New("title notification must have at least 10 characters")
+	}
+	var digits int
+	var symbols int
+	for _, ch := range title {
+		if unicode.IsDigit(ch) {
+			digits++
+		}
+		if unicode.IsSymbol(ch) {
+			symbols++
+		}
+		if digits > 6 || symbols > 4 {
+			return "", errors.New("title notification must not have more than 6 digits or symbols")
+		}
+	}
 	return title, nil
 }
 
@@ -59,7 +76,7 @@ func NewContent(content string) (string, error) {
 }
 
 func NewRecipients(recipients []User) ([]User, error) {
-	if len(recipients) < 0 {
+	if recipients == nil {
 		return []User{}, errors.New("recipients must not be greater than 0")
 	}
 	return recipients, nil
@@ -73,14 +90,41 @@ func NewChannel(channelID uint) (uint, error) {
 }
 
 func UpdateNotification(title string, content string, channelID uint, recipients []User) (Notification, error) {
+	validTitle, err := UpdateTitle(title)
+	if err != nil {
+		return Notification{}, err
+	}
 	validChannel, err := NewChannel(channelID)
 	if err != nil {
 		return Notification{}, err
 	}
 	return Notification{
-		Title:      title,
+		Title:      validTitle,
 		Content:    content,
 		ChannelID:  validChannel,
 		Recipients: recipients,
 	}, nil
+}
+
+func UpdateTitle(title string) (string, error) {
+	if len(title) == 0 {
+		return "", nil
+	}
+	if len(title) < 10 {
+		return "", errors.New("title notification must have at least 10 characters")
+	}
+	var digits int
+	var symbols int
+	for _, ch := range title {
+		if unicode.IsDigit(ch) {
+			digits++
+		}
+		if unicode.IsSymbol(ch) {
+			symbols++
+		}
+		if digits > 6 || symbols > 4 {
+			return "", errors.New("title notification must not have more than 6 digits or symbols")
+		}
+	}
+	return title, nil
 }

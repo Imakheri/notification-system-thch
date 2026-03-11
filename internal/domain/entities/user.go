@@ -52,6 +52,11 @@ func NewName(name string) (string, error) {
 	if len(name) <= 0 || len(name) >= 25 {
 		return "", errors.New("invalid name structure")
 	}
+	for _, ch := range name {
+		if !unicode.IsLetter(ch) && !unicode.IsSpace(ch) {
+			return "", errors.New("name should only contain letters")
+		}
+	}
 	return name, nil
 }
 
@@ -139,6 +144,11 @@ func UpdateUser(name, password, phone, deviceToken string) (User, error) {
 func UpdateName(name string) (string, error) {
 	if len(name) >= 25 {
 		return "", errors.New("invalid name structure")
+	}
+	for _, ch := range name {
+		if !unicode.IsLetter(ch) && !unicode.IsSpace(ch) {
+			return "", errors.New("name should only contain letters")
+		}
 	}
 	return name, nil
 }

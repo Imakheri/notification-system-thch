@@ -1,9 +1,12 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/repository/dtos"
+	"gorm.io/gorm"
 )
 
 type userRepository struct {
@@ -29,6 +32,9 @@ func (ur *userRepository) CreateUser(user entities.User) (entities.User, error) 
 func (ur *userRepository) GetUserByEmail(email string) (entities.User, error) {
 	var userModel dtos.UserModel
 	result := ur.db.DatabaseConnection.Where("email = ?", email).First(&userModel)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return entities.User{}, errors.New("user not found")
+	}
 	if result.Error != nil {
 		return entities.User{}, result.Error
 	}

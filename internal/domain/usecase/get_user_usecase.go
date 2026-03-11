@@ -3,46 +3,41 @@ package usecase
 import (
 	"errors"
 
-	"github.com/imakheri/notifications-thch/config"
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
-	"github.com/imakheri/notifications-thch/internal/infrastructure/service"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type GetUserUseCase interface {
-	Exec(user entities.User) (entities.User, error)
+	Exec(user entities.User) (entities.User, string, error)
 }
 
 type getUserUseCase struct {
-	repository  gateway.UserRepository
-	jwt_service gateway.JwTokenService
-	config      *config.Config
+	userRepository gateway.UserRepository
+	jwtService     gateway.JwTokenService
 }
 
-func NewGetUser(repository gateway.UserRepository, cfg *config.Config) GetUserUseCase {
+func NewGetUserUseCase(repository gateway.UserRepository, jwtService gateway.JwTokenService) GetUserUseCase {
 	return &getUserUseCase{
-		repository: repository,
-		config:     cfg,
+		userRepository: repository,
+		jwtService:     jwtService,
 	}
 }
 
-func (g *getUserUseCase) Exec(userInput entities.User) (entities.User, error) {
-	user, err := g.repository.GetUserByEmail(userInput.Email)
+func (g *getUserUseCase) Exec(userInput entities.User) (entities.User, string, error) {
+	user, err := g.userRepository.GetUserByEmail(userInput.Email)
 	if err != nil {
-		return entities.User{}, errors.New("the e-mail address or password is incorrect")
+		return entities.User{}, "", errors.New("the e-mail address or password is incorrect")
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userInput.Password))
 	if err != nil {
-		return entities.User{}, errors.New("the e-mail address or password is incorrect")
+		return entities.User{}, "", errors.New("the e-mail address or password is incorrect")
 	}
 
-	token, err := service.NewJWTService(g.config).GenerateToken(user.Email, user.ID)
-
+	token, err := g.jwtService.GenerateToken(user.Email, user.ID)
 	if err != nil {
-		return entities.User{}, errors.New("could not generate JWT")
+		return entities.User{}, "", errors.New("could not generate JWT")
 	}
 
-	println(token)
-	return user, nil
+	return user, token, nil
 }

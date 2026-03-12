@@ -12,19 +12,22 @@ func DeleteNotificationHandler(deleteNotificationUseCase usecase.DeleteNotificat
 	return func(ctx *gin.Context) {
 		idParam := ctx.Param("id")
 
-		if len(idParam) <= 0 {
+		if len(idParam) <= 0 || idParam == "0" {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "must enter a valid id"})
+			return
 		}
 
 		notificationIDParam, err := strconv.Atoi(idParam)
 
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
 		}
 
 		userID, ok := ctx.Get("id")
 		if !ok {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "can not get user id"})
+			return
 		}
 
 		notificationID, err := deleteNotificationUseCase.Exec(userID.(uint), uint(notificationIDParam))

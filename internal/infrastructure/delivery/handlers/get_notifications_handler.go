@@ -13,6 +13,7 @@ func GetNotificationsByUserIDHandler(GetNotificationByUserUseCase usecase.GetNot
 		userID, ok := ctx.Get("id")
 		if !ok {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "can not get user id"})
+			return
 		}
 		notifications, err := GetNotificationByUserUseCase.Exec(userID.(uint))
 		if err != nil {
@@ -20,7 +21,7 @@ func GetNotificationsByUserIDHandler(GetNotificationByUserUseCase usecase.GetNot
 			return
 		}
 
-		var response []dtos.NotificationResponseDTO
+		response := make([]dtos.NotificationResponseDTO, 0)
 		for _, notification := range notifications {
 			response = append(response, dtos.NotificationToDto(notification))
 		}

@@ -18,11 +18,12 @@ func UpdateUserHandler(updateUserUseCase usecase.UpdateUserUseCase) func(ctx *gi
 		userEmail, ok := ctx.Get("email")
 		if !ok {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "can not get user email"})
+			return
 		}
 		updateUserEntity, err := dtos.UserUpdateToEntity(input)
 		updatedUser, err := updateUserUseCase.Exec(userEmail.(string), updateUserEntity)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 

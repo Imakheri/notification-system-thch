@@ -297,7 +297,7 @@ func Test_updateNotificationUseCase_Exec(t *testing.T) {
 			ExpectedErrMsg: "recipient does not exist",
 		},
 		{
-			name: "Notification updated successfully",
+			name: "Error from database updating notification",
 			fields: fields{
 				updateNotificationRepository: func(ctrl *gomock.Controller) gateway.NotificationRepository {
 					m := mocks.NewMockNotificationRepository(ctrl)
@@ -315,7 +315,7 @@ func Test_updateNotificationUseCase_Exec(t *testing.T) {
 						CreatedBy: 0,
 						SentAt:    nil,
 						Title:     "Earthquake detected in your area!",
-						Content:   "Drop, cover, and hold on. Please proceed calmly. ",
+						Content:   "Drop, cover, and hold on. Please proceed calmly.",
 						ChannelID: 3,
 						Recipients: []entities.User{
 							{
@@ -356,7 +356,7 @@ func Test_updateNotificationUseCase_Exec(t *testing.T) {
 				notificationID: 100,
 				notification: entities.Notification{
 					Title:     "Earthquake detected in your area!",
-					Content:   "Drop, cover, and hold on. Please proceed calmly. ",
+					Content:   "Drop, cover, and hold on. Please proceed calmly.",
 					ChannelID: 3,
 					Recipients: []entities.User{
 						{

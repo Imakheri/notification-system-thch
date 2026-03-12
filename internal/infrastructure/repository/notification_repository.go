@@ -42,9 +42,6 @@ func (nr *NotificationRepository) CreateNotification(userID uint, notification e
 func (nr *NotificationRepository) GetNotificationsByUser(userID uint) ([]entities.Notification, error) {
 	var notifications []dtos.NotificationModel
 	result := nr.db.DatabaseConnection.Preload("Recipients").Find(&notifications, "created_by = ?", userID)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return []entities.Notification{}, errors.New("user has no notifications")
-	}
 	if result.Error != nil {
 		return []entities.Notification{}, result.Error
 	}

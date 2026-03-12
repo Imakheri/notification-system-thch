@@ -45,7 +45,7 @@ func NotificationToEntity(n CreateNotificationDTO) (entities.Notification, error
 }
 
 func NotificationToDto(n entities.Notification) NotificationResponseDTO {
-	var recipients []UserIntoNotificationDTO
+	recipients := make([]UserIntoNotificationDTO, 0)
 
 	for _, recipient := range n.Recipients {
 		recipients = append(recipients, UserIntoNotificationToDTO(recipient))

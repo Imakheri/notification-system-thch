@@ -8,7 +8,7 @@ import (
 	"github.com/imakheri/notifications-thch/internal/infrastructure/delivery/handlers/dtos"
 )
 
-func GetUserHandler(useCase usecase.GetUserUseCase) func(ctx *gin.Context) {
+func GetUserHandler(getUserUseCase usecase.GetUserUseCase) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		var input dtos.GetUserDTO
 		if err := ctx.ShouldBind(&input); err != nil {
@@ -16,9 +16,9 @@ func GetUserHandler(useCase usecase.GetUserUseCase) func(ctx *gin.Context) {
 			return
 		}
 		userEntity := dtos.GetUserToEntity(input)
-		user, token, err := useCase.Exec(userEntity)
+		user, token, err := getUserUseCase.Exec(userEntity)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
 		ctx.JSON(http.StatusOK, gin.H{

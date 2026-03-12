@@ -20,28 +20,32 @@ func UpdateNotificationHandler(updateNotificationUseCase usecase.UpdateNotificat
 		idParam := ctx.Param("id")
 		if len(idParam) <= 0 {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "must enter a valid id"})
+			return
 		}
 		notificationID, err := strconv.Atoi(idParam)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
 		}
 
 		userID, ok := ctx.Get("id")
 		if !ok {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "can not get user id"})
+			return
 		}
 
 		notification, err := dtos.NotificationUpdateToEntity(input)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 		}
 
 		updatedNotification, err := updateNotificationUseCase.Exec(userID.(uint), notificationID, notification)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		ctx.JSON(http.StatusCreated, gin.H{"notification": dtos.NotificationToDto(updatedNotification)})
+		ctx.JSON(http.StatusOK, gin.H{"notification": dtos.NotificationToDto(updatedNotification)})
 	}
 }

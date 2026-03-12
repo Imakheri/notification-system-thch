@@ -19,15 +19,18 @@ func CreateNotificationHandler(createNotificationUseCase usecase.CreateNotificat
 		notificationEntity, err := dtos.NotificationToEntity(notification)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
 		}
 
 		userID, ok := ctx.Get("id")
 		if !ok {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "can not get user id"})
+			return
 		}
 		userEmail, ok := ctx.Get("email")
-		if !ok {
+		if !ok || userEmail == "" {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "can not get user email"})
+			return
 		}
 
 		newNotification, err := createNotificationUseCase.Exec(userID.(uint), userEmail.(string), notificationEntity)

@@ -33,7 +33,7 @@ func (es *EmailStrategy) validate(recipient entities.User) error {
 func (es *EmailStrategy) Send(sender string, recipient entities.User, notification entities.Notification) (int, error) {
 	err := es.validate(recipient)
 	if err != nil {
-		return 0, err
+		return http.StatusBadRequest, err
 	}
 	emailTemplateDTO := toEmailTemplateDTO(sender, notification)
 	_, err = generateEmailTemplate(emailTemplateDTO)

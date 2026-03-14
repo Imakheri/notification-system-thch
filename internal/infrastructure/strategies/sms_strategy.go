@@ -21,7 +21,7 @@ func NewSMSStrategy(simulatedApiService gateway.SimulatedApiService) entities.No
 }
 
 func (ss *SMSStrategy) validate(user entities.User, notification entities.Notification) error {
-	if len(user.Phone) <= 0 {
+	if len(user.Phone) == 0 {
 		return errors.New("user must have a phone number")
 	}
 	if len(user.Phone) < 10 {
@@ -40,7 +40,7 @@ func (ss *SMSStrategy) validate(user entities.User, notification entities.Notifi
 func (ss *SMSStrategy) Send(sender string, recipient entities.User, notification entities.Notification) (int, error) {
 	err := ss.validate(recipient, notification)
 	if err != nil {
-		return 0, nil
+		return http.StatusBadRequest, err
 	}
 	maxRetries := 3
 	var status int

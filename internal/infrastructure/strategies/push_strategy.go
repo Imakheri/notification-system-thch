@@ -27,7 +27,7 @@ func NewPushStrategy(simulatedApiService gateway.SimulatedApiService) entities.N
 }
 
 func (ps *PushStrategy) validate(user entities.User, notification entities.Notification) error {
-	if len(user.DeviceToken) < 0 {
+	if len(user.DeviceToken) == 0 {
 		return errors.New("user must have a device token")
 	}
 	_, err := payloadFormater(user, notification)
@@ -40,7 +40,7 @@ func (ps *PushStrategy) validate(user entities.User, notification entities.Notif
 func (ps *PushStrategy) Send(sender string, recipient entities.User, notification entities.Notification) (int, error) {
 	err := ps.validate(recipient, notification)
 	if err != nil {
-		return 0, err
+		return http.StatusBadRequest, err
 	}
 	maxRetries := 3
 	var status int

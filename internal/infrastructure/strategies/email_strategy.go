@@ -3,11 +3,11 @@ package strategies
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
@@ -37,16 +37,11 @@ func (es *EmailStrategy) Send(sender string, recipient entities.User, notificati
 	}
 	emailTemplateDTO := toEmailTemplateDTO(sender, notification)
 	_, err = generateEmailTemplate(emailTemplateDTO)
-	maxRetries := 3
-	var status int
-	for i := 0; i < maxRetries; i++ {
-		status = es.simulatedApiService.RandomizeHTTPStatus()
-		if status == http.StatusOK || status == http.StatusCreated {
-			return status, nil
-		}
-		time.Sleep(time.Duration(i) * time.Second)
+	status, err := es.simulatedApiService.RandomizeHTTPStatus()
+	if err != nil {
+		return status, errors.New(fmt.Sprintf("%v %v", err, "notification via email"))
 	}
-	return status, errors.New("an error occurred while trying to send notification via email")
+	return status, nil
 }
 
 func generateEmailTemplate(emailTemplateDTO EmailTemplateDTO) (string, error) {

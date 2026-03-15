@@ -172,8 +172,7 @@ func Test_createNotificationUseCase_Exec(t *testing.T) {
 				},
 				simulatedApiService: func(ctrl *gomock.Controller) gateway.SimulatedApiService {
 					m := mocks.NewMockSimulatedApiService(ctrl)
-					m.EXPECT().RandomizeHTTPStatus().Return(http.StatusInternalServerError).Times(2)
-					m.EXPECT().RandomizeHTTPStatus().Return(http.StatusOK).Times(2)
+					m.EXPECT().RandomizeHTTPStatus().Return(http.StatusOK, nil).Times(2)
 					return m
 				},
 				clock: func(ctrl *gomock.Controller) gateway.Clock {
@@ -377,7 +376,7 @@ func Test_createNotificationUseCase_Exec(t *testing.T) {
 				},
 				simulatedApiService: func(ctrl *gomock.Controller) gateway.SimulatedApiService {
 					m := mocks.NewMockSimulatedApiService(ctrl)
-					m.EXPECT().RandomizeHTTPStatus().Return(http.StatusInternalServerError).Times(3)
+					m.EXPECT().RandomizeHTTPStatus().Return(http.StatusInternalServerError, errors.New("an error occurred while trying to send"))
 					return m
 				},
 				clock: func(ctrl *gomock.Controller) gateway.Clock {
@@ -466,7 +465,7 @@ func Test_createNotificationUseCase_Exec(t *testing.T) {
 				},
 				simulatedApiService: func(ctrl *gomock.Controller) gateway.SimulatedApiService {
 					m := mocks.NewMockSimulatedApiService(ctrl)
-					m.EXPECT().RandomizeHTTPStatus().Return(http.StatusInternalServerError).Times(3)
+					m.EXPECT().RandomizeHTTPStatus().Return(http.StatusInternalServerError, errors.New("an error occurred while trying to send"))
 					return m
 				},
 				clock: func(ctrl *gomock.Controller) gateway.Clock {
@@ -572,7 +571,7 @@ func Test_createNotificationUseCase_Exec(t *testing.T) {
 				},
 				simulatedApiService: func(ctrl *gomock.Controller) gateway.SimulatedApiService {
 					m := mocks.NewMockSimulatedApiService(ctrl)
-					m.EXPECT().RandomizeHTTPStatus().Return(http.StatusCreated)
+					m.EXPECT().RandomizeHTTPStatus().Return(http.StatusCreated, nil)
 					return m
 				},
 				clock: func(ctrl *gomock.Controller) gateway.Clock {

@@ -3,8 +3,8 @@ package strategies
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
@@ -42,16 +42,11 @@ func (ps *PushStrategy) Send(sender string, recipient entities.User, notificatio
 	if err != nil {
 		return http.StatusBadRequest, err
 	}
-	maxRetries := 3
-	var status int
-	for i := 0; i < maxRetries; i++ {
-		status = ps.simulatedApiService.RandomizeHTTPStatus()
-		if status == http.StatusOK || status == http.StatusCreated {
-			return status, nil
-		}
-		time.Sleep(time.Duration(i) * time.Second)
+	status, err := ps.simulatedApiService.RandomizeHTTPStatus()
+	if err != nil {
+		return status, errors.New(fmt.Sprintf("%v %v", err, "push notification"))
 	}
-	return status, errors.New("an error occurred while trying to send push notification")
+	return status, nil
 }
 
 func payloadFormater(user entities.User, notification entities.Notification) ([]byte, error) {

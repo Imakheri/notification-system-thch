@@ -2,9 +2,9 @@ package strategies
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/gateway"
@@ -42,14 +42,9 @@ func (ss *SMSStrategy) Send(sender string, recipient entities.User, notification
 	if err != nil {
 		return http.StatusBadRequest, err
 	}
-	maxRetries := 3
-	var status int
-	for i := 0; i < maxRetries; i++ {
-		status = ss.simulatedApiService.RandomizeHTTPStatus()
-		if status == http.StatusOK || status == http.StatusCreated {
-			return status, nil
-		}
-		time.Sleep(time.Duration(i) * time.Second)
+	status, err := ss.simulatedApiService.RandomizeHTTPStatus()
+	if err != nil {
+		return status, errors.New(fmt.Sprintf("%v %v", err, "notification via sms"))
 	}
-	return status, errors.New("an error occurred while trying to send notification via sms")
+	return status, nil
 }

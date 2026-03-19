@@ -1,5 +1,5 @@
 package gateway
 
 type SimulatedApiService interface {
-	RandomizeHTTPStatus() int
+	RandomizeHTTPStatus() (int, error)
 }

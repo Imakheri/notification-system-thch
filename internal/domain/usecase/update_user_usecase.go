@@ -42,5 +42,9 @@ func (uuu *updateUserUseCase) Exec(userEmail string, user entities.User) (entiti
 	if err != nil {
 		return entities.User{}, err
 	}
-	return user, nil
+	updatedUser, err := uuu.userRepository.GetUserByEmail(userEmail)
+	if err != nil {
+		return entities.User{}, err
+	}
+	return updatedUser, nil
 }

@@ -1,6 +1,7 @@
 package strategies
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 
@@ -28,7 +29,7 @@ func TestEmailStrategy_Send(t *testing.T) {
 			name:      "Email sent successfully on first attempt",
 			recipient: entities.User{Email: "test@example.com"},
 			mockBehavior: func() {
-				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusOK)
+				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusOK, nil)
 			},
 			expectedStatus: http.StatusOK,
 			wantErr:        false,
@@ -46,14 +47,13 @@ func TestEmailStrategy_Send(t *testing.T) {
 			name:      "Email sent  error after 3 attempts",
 			recipient: entities.User{Email: "test@example.com"},
 			mockBehavior: func() {
-				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusInternalServerError).Times(3)
+				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusInternalServerError, errors.New("an error occurred while trying to send"))
 			},
 			expectedStatus: http.StatusInternalServerError,
 			wantErr:        true,
 			ExpectedErrMsg: "an error occurred while trying to send notification via email",
 		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior()

@@ -53,6 +53,14 @@ func Test_updateUserUseCase_Exec(t *testing.T) {
 						Phone:       "0129834765",
 						DeviceToken: "12345qwerty67890",
 					}, nil)
+					m.EXPECT().GetUserByEmail("fernandop@example.com").Return(entities.User{
+						ID:            3,
+						Name:          "Ricardo Reis",
+						Email:         "fernandop@example.com",
+						Phone:         "0129834765",
+						DeviceToken:   "12345qwerty67890",
+						Notifications: nil,
+					}, nil)
 					return m
 				},
 			},
@@ -66,7 +74,7 @@ func Test_updateUserUseCase_Exec(t *testing.T) {
 			want: entities.User{
 				ID:            3,
 				Name:          "Ricardo Reis",
-				Email:         "fernandop@exmaple.com",
+				Email:         "fernandop@example.com",
 				Phone:         "0129834765",
 				DeviceToken:   "12345qwerty67890",
 				Notifications: nil,

@@ -40,11 +40,12 @@ func (m *MockSimulatedApiService) EXPECT() *MockSimulatedApiServiceMockRecorder 
 }
 
 // RandomizeHTTPStatus mocks base method.
-func (m *MockSimulatedApiService) RandomizeHTTPStatus() int {
+func (m *MockSimulatedApiService) RandomizeHTTPStatus() (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RandomizeHTTPStatus")
 	ret0, _ := ret[0].(int)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // RandomizeHTTPStatus indicates an expected call of RandomizeHTTPStatus.

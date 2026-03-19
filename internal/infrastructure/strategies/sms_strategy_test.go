@@ -1,6 +1,7 @@
 package strategies
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 
@@ -35,7 +36,7 @@ func TestSMSStrategy_Send(t *testing.T) {
 				Content: "This is a test notification",
 			},
 			mockBehavior: func() {
-				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusOK)
+				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusOK, nil)
 			},
 			expectedStatus: http.StatusOK,
 			wantErr:        false,
@@ -78,7 +79,7 @@ func TestSMSStrategy_Send(t *testing.T) {
 				Content: "This is a test notification",
 			},
 			mockBehavior: func() {
-				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusInternalServerError).Times(3)
+				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusInternalServerError, errors.New("an error occurred while trying to send"))
 			},
 			expectedStatus: http.StatusInternalServerError,
 			wantErr:        true,

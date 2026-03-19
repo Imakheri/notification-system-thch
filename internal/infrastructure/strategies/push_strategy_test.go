@@ -1,6 +1,7 @@
 package strategies
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 
@@ -28,7 +29,7 @@ func TestPushStrategy_Send(t *testing.T) {
 			name:      "Push notification sent successfully on first attempt",
 			recipient: entities.User{DeviceToken: "0q1e2r3t4y5a6b7c8d9e"},
 			mockBehavior: func() {
-				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusOK)
+				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusOK, nil)
 			},
 			expectedStatus: http.StatusOK,
 			wantErr:        false,
@@ -46,7 +47,7 @@ func TestPushStrategy_Send(t *testing.T) {
 			name:      "Push notification not sent after 3 attempts",
 			recipient: entities.User{DeviceToken: "0q1e2r3t4y5a6b7c8d9e"},
 			mockBehavior: func() {
-				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusInternalServerError).Times(3)
+				m.EXPECT().RandomizeHTTPStatus().Return(http.StatusInternalServerError, errors.New("an error occurred while trying to send"))
 			},
 			expectedStatus: http.StatusInternalServerError,
 			wantErr:        true,

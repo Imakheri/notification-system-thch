@@ -62,6 +62,7 @@ func (cnu *createNotificationUseCase) Exec(userID uint, userEmail string, notifi
 			return entities.Notification{}, err
 		}
 		currentStrategy := cnu.strategySelector(notification.ChannelID)
+
 		_, err = currentStrategy.Send(sender.Email, user, newNotification)
 		if err != nil {
 			_, errorDeleting := cnu.notificationRepository.DeleteNotificationByID(newNotification.ID)

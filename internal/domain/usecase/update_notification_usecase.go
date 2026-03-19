@@ -44,9 +44,15 @@ func (u *updateNotificationUseCase) Exec(userID uint, notificationID int, notifi
 		}
 	}
 
-	updatedNotification, err := u.notificationRepository.UpdateNotification(notification)
+	_, err = u.notificationRepository.UpdateNotification(notification)
 	if err != nil {
 		return entities.Notification{}, err
 	}
-	return updatedNotification, nil
+
+	updatedNotificationFromDB, err := u.notificationRepository.DoesNotificationExistsAndBelongsToUser(userID, uint(notificationID))
+	if err != nil {
+		return entities.Notification{}, err
+	}
+
+	return updatedNotificationFromDB, nil
 }

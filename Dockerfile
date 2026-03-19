@@ -13,4 +13,4 @@ COPY . .
 RUN go build -o main .
 
 # 6. Comando para iniciar la API
-CMD ["go", "run", "main.go"]
+CMD ["./main.go"]

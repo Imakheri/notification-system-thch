@@ -27,11 +27,11 @@ func NewDatabase(cfg *config.Config) *Database {
 		DatabasePath:     cfg.DatabasePath,
 		DatabasePort:     cfg.DatabasePort,
 	}
-	db.DatabaseConnection = db.Connection()
+	db.DatabaseConnection = db.Connect()
 	return db
 }
 
-func (db *Database) Connection() *gorm.DB {
+func (db *Database) Connect() *gorm.DB {
 
 	if db.DatabaseConnection != nil {
 		return db.DatabaseConnection

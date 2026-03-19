@@ -86,6 +86,32 @@ func Test_updateNotificationUseCase_Exec(t *testing.T) {
 							},
 						},
 					}, nil)
+					m.EXPECT().DoesNotificationExistsAndBelongsToUser(uint(1), uint(100)).Return(entities.Notification{
+						ID:        100,
+						CreatedBy: 1,
+						SentAt:    nil,
+						Title:     "Earthquake detected in your area!",
+						Content:   "Drop, cover, and hold on. Please proceed calmly. ",
+						ChannelID: 3,
+						Recipients: []entities.User{
+							{
+								ID:            3,
+								Name:          "Charles Dickens",
+								Email:         "charlesd@example.com",
+								Phone:         "0987654321",
+								DeviceToken:   "e0d8c7b6a5y4t3r2e1q0",
+								Notifications: nil,
+							},
+							{
+								ID:            4,
+								Name:          "Fernando Pessoa",
+								Email:         "fernandop@example.com",
+								Phone:         "0129834765",
+								DeviceToken:   "12345qwerty67890",
+								Notifications: nil,
+							},
+						},
+					}, nil)
 					return m
 				},
 				userRepository: func(ctrl *gomock.Controller) gateway.UserRepository {

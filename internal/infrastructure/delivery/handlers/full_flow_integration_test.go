@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/usecase"
 	"github.com/imakheri/notifications-thch/internal/infrastructure"
 	handler_dtos "github.com/imakheri/notifications-thch/internal/infrastructure/delivery/handlers/dtos"
@@ -73,7 +72,7 @@ func TestE2E_FullFlow(t *testing.T) {
 		Title:     "Test Notification",
 		Content:   "This is a test notification",
 		ChannelID: 1,
-		Recipients: []entities.User{
+		Recipients: []handler_dtos.UserIntoNotificationDTO{
 			{
 				Email: "charlesd@example.com",
 			},

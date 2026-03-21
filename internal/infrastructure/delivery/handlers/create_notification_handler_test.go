@@ -95,7 +95,6 @@ func TestCreateNotificationHandler(t *testing.T) {
 							"channel_id": 1,
 							"recipients": [
 								{
-									"id": 3,
 									"email": "charlesd@example.com"
 								}
 							]

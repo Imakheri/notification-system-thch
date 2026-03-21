@@ -79,7 +79,6 @@ func TestUpdateNotificationHandler(t *testing.T) {
 							"channel_id": 3,
 							"recipients": [
 								{
-									"id": 3,
 									"email": "charlesd@example.com"
 								}
 							]

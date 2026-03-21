@@ -24,12 +24,7 @@ type UpdateUserDTO struct {
 	DeviceToken string `json:"device_token" example:"12345qwerty67890"`
 }
 
-type UserIntoCreateNotificationDTO struct {
-	Email string `json:"email" example:"williams@example.com"`
-}
-
 type UserIntoNotificationDTO struct {
-	ID    uint   `json:"id" example:"20"`
 	Email string `json:"email" example:"williams@example.com"`
 }
 

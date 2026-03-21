@@ -7,10 +7,10 @@ import (
 )
 
 type CreateNotificationDTO struct {
-	Title      string                          `json:"title"  example:"Example Notification"`
-	Content    string                          `json:"content" example:"This is an example notification"`
-	ChannelID  uint                            `json:"channel_id" example:"2"`
-	Recipients []UserIntoCreateNotificationDTO `json:"recipients"`
+	Title      string                    `json:"title"  example:"Example Notification"`
+	Content    string                    `json:"content" example:"This is an example notification"`
+	ChannelID  uint                      `json:"channel_id" example:"2"`
+	Recipients []UserIntoNotificationDTO `json:"recipients"`
 }
 
 type NotificationResponseDTO struct {
@@ -24,10 +24,10 @@ type NotificationResponseDTO struct {
 }
 
 type UpdateNotificationDTO struct {
-	Title      string                          `json:"title" example:"New Example Notification Title"`
-	Content    string                          `json:"content" example:"This is an new example notification content"`
-	ChannelID  uint                            `json:"channel_id" example:"3"`
-	Recipients []UserIntoCreateNotificationDTO `json:"recipients"`
+	Title      string                    `json:"title" example:"New Example Notification Title"`
+	Content    string                    `json:"content" example:"This is an new example notification content"`
+	ChannelID  uint                      `json:"channel_id" example:"3"`
+	Recipients []UserIntoNotificationDTO `json:"recipients"`
 }
 
 type SuccessfulDeleteResponseDTO struct {
@@ -58,9 +58,12 @@ func NotificationToEntity(n CreateNotificationDTO) (entities.Notification, error
 }
 
 func NotificationToDto(n entities.Notification) NotificationResponseDTO {
-	var recipients = make([]UserIntoNotificationDTO, len(n.Recipients))
-	for i, recipient := range n.Recipients {
-		recipients[i].Email = recipient.Email
+	var recipients []UserIntoNotificationDTO
+	if len(n.Recipients) > 0 {
+		recipients = make([]UserIntoNotificationDTO, len(n.Recipients))
+		for i, recipient := range n.Recipients {
+			recipients[i].Email = recipient.Email
+		}
 	}
 	return NotificationResponseDTO{
 		ID:         n.ID,
@@ -74,9 +77,12 @@ func NotificationToDto(n entities.Notification) NotificationResponseDTO {
 }
 
 func NotificationUpdateToEntity(n UpdateNotificationDTO) (entities.Notification, error) {
-	var recipients = make([]entities.User, len(n.Recipients))
-	for i, recipient := range n.Recipients {
-		recipients[i].Email = recipient.Email
+	var recipients []entities.User
+	if len(n.Recipients) > 0 {
+		recipients = make([]entities.User, len(n.Recipients))
+		for i, recipient := range n.Recipients {
+			recipients[i].Email = recipient.Email
+		}
 	}
 	newNotification, err := entities.UpdateNotification(n.Title, n.Content, n.ChannelID, recipients)
 	if err != nil {

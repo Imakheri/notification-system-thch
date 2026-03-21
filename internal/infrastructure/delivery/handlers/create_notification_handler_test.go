@@ -95,7 +95,6 @@ func TestCreateNotificationHandler(t *testing.T) {
 							"channel_id": 1,
 							"recipients": [
 								{
-									"id": 3,
 									"email": "charlesd@example.com"
 								}
 							]
@@ -252,7 +251,7 @@ func TestCreateNotificationHandler(t *testing.T) {
 			ctx, _ := gin.CreateTestContext(w)
 
 			if tt.args.hasAuthContext {
-				ctx.Set("id", tt.args.userID)
+				ctx.Set("user_id", tt.args.userID)
 				ctx.Set("email", tt.args.userEmail)
 			}
 

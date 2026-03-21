@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/imakheri/notifications-thch/internal/domain/entities"
 	"github.com/imakheri/notifications-thch/internal/domain/usecase"
 	"github.com/imakheri/notifications-thch/internal/infrastructure"
 	handler_dtos "github.com/imakheri/notifications-thch/internal/infrastructure/delivery/handlers/dtos"
@@ -19,7 +18,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func TestIntegration_FullUserNotificationFlow(t *testing.T) {
+func TestE2E_FullFlow(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -67,13 +66,13 @@ func TestIntegration_FullUserNotificationFlow(t *testing.T) {
 	w = httptest.NewRecorder()
 	ctx, _ = gin.CreateTestContext(w)
 
-	ctx.Set("id", createdUserID)
+	ctx.Set("user_id", createdUserID)
 	ctx.Set("email", createdUserEmail)
 	notificationInput := handler_dtos.CreateNotificationDTO{
 		Title:     "Test Notification",
 		Content:   "This is a test notification",
 		ChannelID: 1,
-		Recipients: []entities.User{
+		Recipients: []handler_dtos.UserIntoNotificationDTO{
 			{
 				Email: "charlesd@example.com",
 			},
@@ -92,7 +91,7 @@ func TestIntegration_FullUserNotificationFlow(t *testing.T) {
 	w = httptest.NewRecorder()
 	ctx, _ = gin.CreateTestContext(w)
 
-	ctx.Set("id", createdUserID)
+	ctx.Set("user_id", createdUserID)
 	ctx.Request, _ = http.NewRequest(http.MethodGet, "/notifications", nil)
 
 	GetNotificationsByUserIDHandler(getNotificationByUserID)(ctx)

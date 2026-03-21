@@ -93,7 +93,6 @@ func TestGetNotificationsByUserIDHandler(t *testing.T) {
 							  "channel_id": 2,
 							  "recipients": [
 								{
-								  "id": 2,
 								  "email": "williams@example.com"
 								}
 							  ]
@@ -107,7 +106,6 @@ func TestGetNotificationsByUserIDHandler(t *testing.T) {
 							  "channel_id": 3,
 							  "recipients": [
 								{
-								  "id": 3,
 								  "email": "charlesd@example.com"
 								}
 							  ]
@@ -172,7 +170,7 @@ func TestGetNotificationsByUserIDHandler(t *testing.T) {
 			ctx, _ := gin.CreateTestContext(w)
 
 			if tt.args.hasAuthContext {
-				ctx.Set("id", tt.args.authUserID)
+				ctx.Set("user_id", tt.args.authUserID)
 			}
 
 			mockUseCase := tt.fields.GetNotificationByUserUseCase(ctrl)

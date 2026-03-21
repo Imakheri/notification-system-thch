@@ -79,7 +79,6 @@ func TestUpdateNotificationHandler(t *testing.T) {
 							"channel_id": 3,
 							"recipients": [
 								{
-									"id": 3,
 									"email": "charlesd@example.com"
 								}
 							]
@@ -229,7 +228,7 @@ func TestUpdateNotificationHandler(t *testing.T) {
 			ctx.Params = gin.Params{{Key: "id", Value: tt.args.notificationID}}
 
 			if tt.args.hasAuthContext {
-				ctx.Set("id", tt.args.userID)
+				ctx.Set("user_id", tt.args.userID)
 			}
 
 			ctx.Request, _ = http.NewRequest(http.MethodPut, "/notification/:id", bytes.NewBufferString(tt.args.body))

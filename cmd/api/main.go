@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "github.com/imakheri/notifications-thch/cmd/api/docs"
+
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +14,24 @@ import (
 	"github.com/imakheri/notifications-thch/internal/infrastructure/repository"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/service"
 )
+
+// @title           Notification Manager System - THC
+// @version         0.1
+// @description     Service for managing and sending notifications (Take Home Challenge)
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name   Julián Rentería
+// @contact.email   imakheri@gmail.com
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in                         header
+// @name                       Authorization
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name api_key
 
 func main() {
 	router := gin.Default()

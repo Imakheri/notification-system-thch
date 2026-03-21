@@ -1,0 +1,647 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Service for managing and sending notifications (Take Home Challenge)",
+        "title": "Notification Manager System - THC",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Julián Rentería",
+            "email": "imakheri@gmail.com"
+        },
+        "version": "0.1"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/notification": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a notification linked to the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Create new notification",
+                "parameters": [
+                    {
+                        "description": "New notification data",
+                        "name": "notification",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.CreateNotificationDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "notification created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ResponseUserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid notification properties",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "record not found",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/notification/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Modify the content of a specific notification by verifying that it belongs to the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Update a notification",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Notification ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Notification information for update",
+                        "name": "notification",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.UpdateNotificationDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "notification updated created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ResponseUserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "must enter a valid id",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "record not found",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a specific system notification by verifying that it belongs to the user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Delete a specific notification",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Notification ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notification deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.SuccessfulDeleteResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "must enter a valid id",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "record not found",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/notifications": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets all notifications linked to the authenticated user's ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "List a specific user's notifications",
+                "responses": {
+                    "200": {
+                        "description": "list of notifications",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dtos.NotificationResponseDTO"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "can not get user id",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "record not found",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Allows the authenticated user to update their information (except email)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update user data",
+                "parameters": [
+                    {
+                        "description": "User information for update",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.UpdateUserDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "user updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ResponseUserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid user properties",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "record not found",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Authenticates an user and return thier data along a JWToken",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Loggin / Get user data",
+                "parameters": [
+                    {
+                        "description": "Access credentials",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.GetUserDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "user logged in successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.LoginResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid user credentials",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "the e-mail address or password is incorrect",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Register a new user in the system by providing their basic information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "description": "New user data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.CreateUserDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "user created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ResponseUserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid user properties",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "record not found",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ErrorResponseDTO"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dtos.CreateNotificationDTO": {
+            "type": "object",
+            "properties": {
+                "channel_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "content": {
+                    "type": "string",
+                    "example": "This is an example notification"
+                },
+                "recipients": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dtos.UserIntoCreateNotificationDTO"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Example Notification"
+                }
+            }
+        },
+        "dtos.CreateUserDTO": {
+            "type": "object",
+            "properties": {
+                "device_token": {
+                    "type": "string",
+                    "example": "0q1e2r3t4y5a6b7c8d9e"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "williams@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "William Shakespeare"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "Hamlet123."
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "1234567890"
+                }
+            }
+        },
+        "dtos.ErrorResponseDTO": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "dtos.GetUserDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "williams@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "Hamlet123."
+                }
+            }
+        },
+        "dtos.LoginResponseDTO": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/dtos.ResponseUserDTO"
+                }
+            }
+        },
+        "dtos.NotificationResponseDTO": {
+            "type": "object",
+            "properties": {
+                "channel_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "content": {
+                    "type": "string",
+                    "example": "This is an example notification"
+                },
+                "created_by": {
+                    "type": "integer",
+                    "example": 6
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "recipients": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dtos.UserIntoNotificationDTO"
+                    }
+                },
+                "sent_at": {
+                    "type": "string",
+                    "example": "2026-03-03 16:25:55.470"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Example Notification"
+                }
+            }
+        },
+        "dtos.ResponseUserDTO": {
+            "type": "object",
+            "properties": {
+                "device_token": {
+                    "type": "string",
+                    "example": "0q1e2r3t4y5a6b7c8d9e"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "williams@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "William Shakespeare"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "1234567890"
+                }
+            }
+        },
+        "dtos.SuccessfulDeleteResponseDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Successfully deleted notification"
+                }
+            }
+        },
+        "dtos.UpdateNotificationDTO": {
+            "type": "object",
+            "properties": {
+                "channel_id": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "content": {
+                    "type": "string",
+                    "example": "This is an new example notification content"
+                },
+                "recipients": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dtos.UserIntoCreateNotificationDTO"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "example": "New Example Notification Title"
+                }
+            }
+        },
+        "dtos.UpdateUserDTO": {
+            "type": "object",
+            "properties": {
+                "device_token": {
+                    "type": "string",
+                    "example": "12345qwerty67890"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Fernando Pessoa"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "Mensagem123."
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "0129834765"
+                }
+            }
+        },
+        "dtos.UserIntoCreateNotificationDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "williams@example.com"
+                }
+            }
+        },
+        "dtos.UserIntoNotificationDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "williams@example.com"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 20
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "api_key",
+            "in": "header"
+        },
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

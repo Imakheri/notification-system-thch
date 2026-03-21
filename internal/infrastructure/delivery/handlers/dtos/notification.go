@@ -7,31 +7,44 @@ import (
 )
 
 type CreateNotificationDTO struct {
-	Title      string          `json:"title"`
-	Content    string          `json:"content"`
-	ChannelID  uint            `json:"channel_id"`
-	Recipients []entities.User `json:"recipients"`
+	Title      string                          `json:"title"  example:"Example Notification"`
+	Content    string                          `json:"content" example:"This is an example notification"`
+	ChannelID  uint                            `json:"channel_id" example:"2"`
+	Recipients []UserIntoCreateNotificationDTO `json:"recipients"`
 }
 
 type NotificationResponseDTO struct {
-	ID         uint                      `json:"id"`
-	CreatedBy  uint                      `json:"created_by"`
-	SentAt     *time.Time                `json:"sent_at"`
-	Title      string                    `json:"title"`
-	Content    string                    `json:"content"`
-	ChannelID  uint                      `json:"channel_id"`
+	ID         uint                      `json:"id" example:"100"`
+	CreatedBy  uint                      `json:"created_by" example:"6"`
+	SentAt     *time.Time                `json:"sent_at" example:"2026-03-03 16:25:55.470"`
+	Title      string                    `json:"title" example:"Example Notification"`
+	Content    string                    `json:"content" example:"This is an example notification"`
+	ChannelID  uint                      `json:"channel_id" example:"2"`
 	Recipients []UserIntoNotificationDTO `json:"recipients"`
 }
 
 type UpdateNotificationDTO struct {
-	Title      string          `json:"title"`
-	Content    string          `json:"content"`
-	ChannelID  uint            `json:"channel_id"`
-	Recipients []entities.User `json:"recipients"`
+	Title      string                          `json:"title" example:"New Example Notification Title"`
+	Content    string                          `json:"content" example:"This is an new example notification content"`
+	ChannelID  uint                            `json:"channel_id" example:"3"`
+	Recipients []UserIntoCreateNotificationDTO `json:"recipients"`
+}
+
+type SuccessfulDeleteResponseDTO struct {
+	ID      uint   `json:"id" example:"100"`
+	Message string `json:"message" example:"Successfully deleted notification"`
+}
+
+type ErrorResponseDTO struct {
+	Error string `json:"error"`
 }
 
 func NotificationToEntity(n CreateNotificationDTO) (entities.Notification, error) {
-	newNotification, err := entities.NewNotification(n.Title, n.Content, n.ChannelID, n.Recipients)
+	var recipients = make([]entities.User, len(n.Recipients))
+	for i, recipient := range n.Recipients {
+		recipients[i].Email = recipient.Email
+	}
+	newNotification, err := entities.NewNotification(n.Title, n.Content, n.ChannelID, recipients)
 	if err != nil {
 		return entities.Notification{}, err
 	}
@@ -45,10 +58,9 @@ func NotificationToEntity(n CreateNotificationDTO) (entities.Notification, error
 }
 
 func NotificationToDto(n entities.Notification) NotificationResponseDTO {
-	recipients := make([]UserIntoNotificationDTO, 0)
-
-	for _, recipient := range n.Recipients {
-		recipients = append(recipients, UserIntoNotificationToDTO(recipient))
+	var recipients = make([]UserIntoNotificationDTO, len(n.Recipients))
+	for i, recipient := range n.Recipients {
+		recipients[i].Email = recipient.Email
 	}
 	return NotificationResponseDTO{
 		ID:         n.ID,
@@ -62,7 +74,11 @@ func NotificationToDto(n entities.Notification) NotificationResponseDTO {
 }
 
 func NotificationUpdateToEntity(n UpdateNotificationDTO) (entities.Notification, error) {
-	newNotification, err := entities.UpdateNotification(n.Title, n.Content, n.ChannelID, n.Recipients)
+	var recipients = make([]entities.User, len(n.Recipients))
+	for i, recipient := range n.Recipients {
+		recipients[i].Email = recipient.Email
+	}
+	newNotification, err := entities.UpdateNotification(n.Title, n.Content, n.ChannelID, recipients)
 	if err != nil {
 		return entities.Notification{}, err
 	}

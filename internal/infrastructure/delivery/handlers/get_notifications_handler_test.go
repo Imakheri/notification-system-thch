@@ -172,7 +172,7 @@ func TestGetNotificationsByUserIDHandler(t *testing.T) {
 			ctx, _ := gin.CreateTestContext(w)
 
 			if tt.args.hasAuthContext {
-				ctx.Set("id", tt.args.authUserID)
+				ctx.Set("user_id", tt.args.authUserID)
 			}
 
 			mockUseCase := tt.fields.GetNotificationByUserUseCase(ctrl)

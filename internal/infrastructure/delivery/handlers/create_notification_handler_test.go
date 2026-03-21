@@ -252,7 +252,7 @@ func TestCreateNotificationHandler(t *testing.T) {
 			ctx, _ := gin.CreateTestContext(w)
 
 			if tt.args.hasAuthContext {
-				ctx.Set("id", tt.args.userID)
+				ctx.Set("user_id", tt.args.userID)
 				ctx.Set("email", tt.args.userEmail)
 			}
 

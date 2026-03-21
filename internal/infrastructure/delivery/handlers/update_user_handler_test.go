@@ -57,7 +57,7 @@ func TestUpdateUserHandler(t *testing.T) {
 						"device_token": "12345qwerty67890"
 						}`,
 			},
-			wantStatus: http.StatusCreated,
+			wantStatus: http.StatusOK,
 			wantBody: `{
 							"user": {
 								"name": "Ricardo Reis",

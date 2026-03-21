@@ -1,0 +1,425 @@
+basePath: /api/v1
+definitions:
+  dtos.CreateNotificationDTO:
+    properties:
+      channel_id:
+        example: 2
+        type: integer
+      content:
+        example: This is an example notification
+        type: string
+      recipients:
+        items:
+          $ref: '#/definitions/dtos.UserIntoCreateNotificationDTO'
+        type: array
+      title:
+        example: Example Notification
+        type: string
+    type: object
+  dtos.CreateUserDTO:
+    properties:
+      device_token:
+        example: 0q1e2r3t4y5a6b7c8d9e
+        type: string
+      email:
+        example: williams@example.com
+        type: string
+      name:
+        example: William Shakespeare
+        type: string
+      password:
+        example: Hamlet123.
+        type: string
+      phone:
+        example: "1234567890"
+        type: string
+    type: object
+  dtos.ErrorResponseDTO:
+    properties:
+      error:
+        type: string
+    type: object
+  dtos.GetUserDTO:
+    properties:
+      email:
+        example: williams@example.com
+        type: string
+      password:
+        example: Hamlet123.
+        type: string
+    type: object
+  dtos.LoginResponseDTO:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/dtos.ResponseUserDTO'
+    type: object
+  dtos.NotificationResponseDTO:
+    properties:
+      channel_id:
+        example: 2
+        type: integer
+      content:
+        example: This is an example notification
+        type: string
+      created_by:
+        example: 6
+        type: integer
+      id:
+        example: 100
+        type: integer
+      recipients:
+        items:
+          $ref: '#/definitions/dtos.UserIntoNotificationDTO'
+        type: array
+      sent_at:
+        example: "2026-03-03 16:25:55.470"
+        type: string
+      title:
+        example: Example Notification
+        type: string
+    type: object
+  dtos.ResponseUserDTO:
+    properties:
+      device_token:
+        example: 0q1e2r3t4y5a6b7c8d9e
+        type: string
+      email:
+        example: williams@example.com
+        type: string
+      name:
+        example: William Shakespeare
+        type: string
+      phone:
+        example: "1234567890"
+        type: string
+    type: object
+  dtos.SuccessfulDeleteResponseDTO:
+    properties:
+      id:
+        example: 100
+        type: integer
+      message:
+        example: Successfully deleted notification
+        type: string
+    type: object
+  dtos.UpdateNotificationDTO:
+    properties:
+      channel_id:
+        example: 3
+        type: integer
+      content:
+        example: This is an new example notification content
+        type: string
+      recipients:
+        items:
+          $ref: '#/definitions/dtos.UserIntoCreateNotificationDTO'
+        type: array
+      title:
+        example: New Example Notification Title
+        type: string
+    type: object
+  dtos.UpdateUserDTO:
+    properties:
+      device_token:
+        example: 12345qwerty67890
+        type: string
+      name:
+        example: Fernando Pessoa
+        type: string
+      password:
+        example: Mensagem123.
+        type: string
+      phone:
+        example: "0129834765"
+        type: string
+    type: object
+  dtos.UserIntoCreateNotificationDTO:
+    properties:
+      email:
+        example: williams@example.com
+        type: string
+    type: object
+  dtos.UserIntoNotificationDTO:
+    properties:
+      email:
+        example: williams@example.com
+        type: string
+      id:
+        example: 20
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: imakheri@gmail.com
+    name: Julián Rentería
+  description: Service for managing and sending notifications (Take Home Challenge)
+  termsOfService: http://swagger.io/terms/
+  title: Notification Manager System - THC
+  version: "0.1"
+paths:
+  /notification:
+    post:
+      consumes:
+      - application/json
+      description: Create a notification linked to the authenticated user
+      parameters:
+      - description: New notification data
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.CreateNotificationDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: notification created successfully
+          schema:
+            $ref: '#/definitions/dtos.ResponseUserDTO'
+        "400":
+          description: invalid notification properties
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "404":
+          description: record not found
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: Create new notification
+      tags:
+      - notifications
+  /notification/{id}:
+    delete:
+      description: Delete a specific system notification by verifying that it belongs
+        to the user
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notification deleted successfully
+          schema:
+            $ref: '#/definitions/dtos.SuccessfulDeleteResponseDTO'
+        "400":
+          description: must enter a valid id
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "404":
+          description: record not found
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: Delete a specific notification
+      tags:
+      - notifications
+    put:
+      consumes:
+      - application/json
+      description: Modify the content of a specific notification by verifying that
+        it belongs to the authenticated user
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Notification information for update
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UpdateNotificationDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: notification updated created successfully
+          schema:
+            $ref: '#/definitions/dtos.ResponseUserDTO'
+        "400":
+          description: must enter a valid id
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "404":
+          description: record not found
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: Update a notification
+      tags:
+      - notifications
+  /notifications:
+    get:
+      description: Gets all notifications linked to the authenticated user's ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: list of notifications
+          schema:
+            items:
+              $ref: '#/definitions/dtos.NotificationResponseDTO'
+            type: array
+        "400":
+          description: can not get user id
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "404":
+          description: record not found
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: List a specific user's notifications
+      tags:
+      - notifications
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates an user and return thier data along a JWToken
+      parameters:
+      - description: Access credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.GetUserDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: user logged in successfully
+          schema:
+            $ref: '#/definitions/dtos.LoginResponseDTO'
+        "400":
+          description: invalid user credentials
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "401":
+          description: the e-mail address or password is incorrect
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Loggin / Get user data
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Allows the authenticated user to update their information (except
+        email)
+      parameters:
+      - description: User information for update
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UpdateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user updated successfully
+          schema:
+            $ref: '#/definitions/dtos.ResponseUserDTO'
+        "400":
+          description: invalid user properties
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "404":
+          description: record not found
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: Update user data
+      tags:
+      - users
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user in the system by providing their basic information
+      parameters:
+      - description: New user data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.CreateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: user created successfully
+          schema:
+            $ref: '#/definitions/dtos.ResponseUserDTO'
+        "400":
+          description: invalid user properties
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "404":
+          description: record not found
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponseDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new user
+      tags:
+      - users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: api_key
+    type: apiKey
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

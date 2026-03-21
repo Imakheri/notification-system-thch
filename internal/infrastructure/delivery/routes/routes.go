@@ -6,6 +6,8 @@ import (
 	"github.com/imakheri/notifications-thch/internal/domain/usecase"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/delivery/handlers"
 	"github.com/imakheri/notifications-thch/internal/infrastructure/middleware"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type AppDependencies struct {
@@ -21,6 +23,7 @@ type AppDependencies struct {
 }
 
 func SetupRoutes(dps AppDependencies) {
+	dps.Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	v1 := dps.Router.Group("/api/v1")
 	{
 		public := v1.Group("/")

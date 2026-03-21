@@ -123,7 +123,7 @@ func TestDeleteNotificationHandler(t *testing.T) {
 			ctx.Params = []gin.Param{{Key: "id", Value: tt.args.notificationID}}
 
 			if tt.args.hasAuthContext {
-				ctx.Set("id", tt.args.authUserID)
+				ctx.Set("user_id", tt.args.authUserID)
 			}
 
 			mockUseCase := tt.fields.deleteNotificationUseCase(ctrl)

@@ -19,7 +19,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func TestIntegration_FullUserNotificationFlow(t *testing.T) {
+func TestE2E_FullFlow(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -67,7 +67,7 @@ func TestIntegration_FullUserNotificationFlow(t *testing.T) {
 	w = httptest.NewRecorder()
 	ctx, _ = gin.CreateTestContext(w)
 
-	ctx.Set("id", createdUserID)
+	ctx.Set("user_id", createdUserID)
 	ctx.Set("email", createdUserEmail)
 	notificationInput := handler_dtos.CreateNotificationDTO{
 		Title:     "Test Notification",
@@ -92,7 +92,7 @@ func TestIntegration_FullUserNotificationFlow(t *testing.T) {
 	w = httptest.NewRecorder()
 	ctx, _ = gin.CreateTestContext(w)
 
-	ctx.Set("id", createdUserID)
+	ctx.Set("user_id", createdUserID)
 	ctx.Request, _ = http.NewRequest(http.MethodGet, "/notifications", nil)
 
 	GetNotificationsByUserIDHandler(getNotificationByUserID)(ctx)

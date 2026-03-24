@@ -18,9 +18,13 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Build Application
+          command: |
+            go build -v ./...
+      - run:
           name: Setup Database
           command: |
-            until nc -z 127.0.0.1 3307; do echo "Esperando MySQL..."; sleep 2; done
+            until nc -z 127.0.0.1 3307; do echo "Waiting for MySQL..."; sleep 2; done
             go run cmd/db/main.go -all
       - run:
           name: Run Tests with gotestsum

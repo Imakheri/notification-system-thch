@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  coveralls: coveralls/coveralls@2.2.5
+
 jobs:
   build_and_test:
     docker:
@@ -28,6 +31,14 @@ jobs:
             go run cmd/db/main.go -all
       - run:
           name: Run tests
+          environment:
+            COVERALLS_REPO_TOKEN: ${COVERALLS_REPO_TOKEN}
+          pre:
+            - go install github.com/mattn/goveralls@latest
+          override:
+            - go test -v -cover -race -coverprofile=/home/ubuntu/coverage.out
+          post:
+            - /home/ubuntu/.go_workspace/bin/goveralls -coverprofile=/home/ubuntu/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
           command: gotestsum --junitfile junit.xml
       - store_test_results:
           path: junit.xml

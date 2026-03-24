@@ -33,16 +33,13 @@ jobs:
           name: Run tests
           environment:
             COVERALLS_TOKEN: ${COVERALLS_TOKEN}
-          command: gotestsum --junitfile junit.xml
-          pre:
-
-            - go install github.com/mattn/goveralls@latest
-          override:
-            - go test -v -cover -race -coverprofile=/coverage.out
-          post:
-            - /.go_workspace/bin/goveralls -coverprofile=/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
-      - store_test_results:
-          path: /coverage.out
+          test:
+            pre:
+              - go install github.com/mattn/goveralls@latest
+            override:
+              - go test -v -cover -race -coverprofile=/home/ubuntu/coverage.out
+            post:
+              - /home/ubuntu/.go_workspace/bin/goveralls -coverprofile=/home/ubuntu/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
 
 workflows:
   main:

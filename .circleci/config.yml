@@ -35,6 +35,7 @@ jobs:
             COVERALLS_TOKEN: ${COVERALLS_TOKEN}
           command: gotestsum --junitfile junit.xml
           pre:
+
             - go install github.com/mattn/goveralls@latest
           override:
             - go test -v -cover -race -coverprofile=/coverage.out

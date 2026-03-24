@@ -1,7 +1,7 @@
 # Notifications manager system -THC
 
-This is a basic notification management system for authenticated users.
-This system allows each user to manage and send notifications through different channels.
+This is a basic notification management system for authenticated users that 
+allows each user to manage and send notifications through different channels.
 
 ### Features
 

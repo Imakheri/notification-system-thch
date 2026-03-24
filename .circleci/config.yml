@@ -32,16 +32,16 @@ jobs:
       - run:
           name: Run tests
           environment:
-            COVERALLS_REPO_TOKEN: YeUKI7635YBhiWXFX5W2N8x5pIUDL0Vve
-          command: gotestsum --junitfile coverage.out
+            COVERALLS_REPO_TOKEN: ${COVERALLS_REPO_TOKEN}
+          command: gotestsum --junitfile junit.xml
           pre:
             - go install github.com/mattn/goveralls@latest
           override:
-            - go test -v -cover -race -coverprofile=/home/ubuntu/coverage.out
+            - go test -v -cover -race -coverprofile=/coverage.out
           post:
-            - /home/ubuntu/.go_workspace/bin/goveralls -coverprofile=/home/ubuntu/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
+            - /.go_workspace/bin/goveralls -coverprofile=/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
       - store_test_results:
-          path: coverage.out
+          path: junit.xml
 
 workflows:
   main:

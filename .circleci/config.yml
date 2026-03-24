@@ -27,12 +27,10 @@ jobs:
             until nc -z 127.0.0.1 3307; do echo "Waiting for MySQL..."; sleep 2; done
             go run cmd/db/main.go -all
       - run:
-          name: Run Tests with gotestsum
-          command: |
-            mkdir -p ./test-results
-            gotestsum --junitfile ./test-results/junit.xml ./...
+          name: Run tests
+          command: gotestsum --junitfile junit.xml
       - store_test_results:
-          path: ./test-results
+          path: junit.xml
 
 workflows:
   main:

@@ -14,7 +14,7 @@ import (
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param user body dtos.CreateUserDTO true "New user data"
+// @Param user body dtos.CreateUserDTO true "new user data"
 // @Success 201  {object}  dtos.ResponseUserDTO "user created successfully"
 // @Failure 400  {object}  dtos.ErrorResponseDTO "invalid user properties"
 // @Failure 404  {object}  dtos.ErrorResponseDTO "record not found"

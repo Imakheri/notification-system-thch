@@ -10,12 +10,12 @@ import (
 
 // @Security ApiKeyAuth
 // @Security BearerAuth
-// @Summary Create new notification
+// @Summary Create a new notification
 // @Description Create a notification linked to the authenticated user
 // @Tags notifications
 // @Accept json
 // @Produce json
-// @Param notification body dtos.CreateNotificationDTO true "New notification data"
+// @Param notification body dtos.CreateNotificationDTO true "new notification data"
 // @Success 200  {object}  dtos.ResponseUserDTO "notification created successfully"
 // @Failure 400  {object}  dtos.ErrorResponseDTO "invalid notification properties"
 // @Failure 404  {object}  dtos.ErrorResponseDTO "record not found"

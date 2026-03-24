@@ -17,7 +17,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param id path int true "Notification ID"
-// @Param notification body dtos.UpdateNotificationDTO true "Notification information for update"
+// @Param notification body dtos.UpdateNotificationDTO true "notification information for update"
 // @Success 200  {object}  dtos.ResponseUserDTO "notification updated created successfully"
 // @Failure 400  {object}  dtos.ErrorResponseDTO "must enter a valid id"
 // @Failure 404  {object}  dtos.ErrorResponseDTO "record not found"

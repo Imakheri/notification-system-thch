@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Run tests
           environment:
-            COVERALLS_REPO_TOKEN: ${COVERALLS_REPO_TOKEN}
+            COVERALLS_REPO_TOKEN: YeUKI7635YBhiWXFX5W2N8x5pIUDL0Vve
           pre:
             - go install github.com/mattn/goveralls@latest
           override:

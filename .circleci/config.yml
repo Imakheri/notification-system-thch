@@ -1,0 +1,40 @@
+version: 2.1
+
+jobs:
+  build_test_upload_coverage:
+    docker:
+      - image: cimg/go:1.25.0
+        environment:
+          DB_NAME: notification_manager_test_db
+          DB_USER: root
+          DB_PASSWORD: root_password
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3307
+      - image: mysql:8.0
+        environment:
+          MYSQL_DATABASE: notification_manager_test_db
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_TCP_PORT: 3307
+    steps:
+      - checkout
+      - run:
+          name: Build Application
+          command: |
+            go build -v ./...
+      - run:
+          name: Setup Database
+          command: |
+            until nc -z 127.0.0.1 3307; do echo "Waiting for MySQL..."; sleep 2; done
+            go run cmd/db/main.go -all
+      - run:
+          name: Run tests and upload coverage
+          command: |
+            go install github.com/mattn/goveralls@latest
+            goveralls -service=circle-ci -repotoken=$COVERALLS_TOKEN
+            gotestsum --junitfile junit.xml
+      - store_test_results:
+          path: /coverage.out
+workflows:
+  main:
+    jobs:
+      - build_test_upload_coverage

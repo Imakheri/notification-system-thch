@@ -1,9 +1,53 @@
 services:
-  api:
+  db:
+    image: mysql:8.0
+    container_name: notifications_manager_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: db_notifications_manager_thc
+      MYSQL_ROOT_PASSWORD: mysql_root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-pmysql_root_password" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db_setup:
     build: .
+    container_name: notification_manager_db_setup
+    command: ./main_db -all
+    depends_on:
+      - db
+    environment:
+      - DB_NAME=db_notifications_manager_thc
+      - DB_USER=root
+      - DB_PASSWORD=mysql_root_password
+      - DB_HOST=db
+      - DB_PORT=3306
+      - SECRET_JWT=Pa1qjOsrLber-2jT:B
+      - API_KEY=OOUbLJZ8OwZBla8/x9aA54ODyouz58ZrOHo+kx9grKg=
+
+  app:
+    build: .
+    container_name: notifications_manager_api
+    command: ./main_api
     ports:
       - "8080:8080"
-    volumes:
-      - .:/app
+    depends_on:
+     db_setup:
+      condition: service_completed_successfully
     environment:
-      - GIN_MODE=release
+      - DB_NAME=db_notifications_manager_thc
+      - DB_USER=root
+      - DB_PASSWORD=mysql_root_password
+      - DB_HOST=db
+      - DB_PORT=3306
+      - SECRET_JWT=Pa1qjOsrLber-2jT:B
+      - API_KEY=OOUbLJZ8OwZBla8/x9aA54ODyouz58ZrOHo+kx9grKg=
+
+volumes:
+  db_data:

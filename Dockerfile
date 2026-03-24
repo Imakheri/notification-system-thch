@@ -1,16 +1,21 @@
-FROM golang:1.25.0-alpine
+FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
-# 3. Copiamos los archivos de dependencias primero (optimiza la velocidad)
 COPY go.mod go.sum ./
 RUN go mod download
 
-# 4. Copiamos el resto del código fuente
 COPY . .
 
-# 5. Compilamos la aplicación
-RUN go build -o main .
+RUN go build -o main_api ./cmd/api/main.go
 
-# 6. Comando para iniciar la API
-CMD ["./main.go"]
+RUN go build -o main_db ./cmd/db/main.go
+
+
+FROM alpine:latest
+WORKDIR /app
+
+COPY --from=builder /app/main_api .
+COPY --from=builder /app/main_db .
+
+COPY --from=builder /app/cmd/db/seeds ./cmd/db/seeds

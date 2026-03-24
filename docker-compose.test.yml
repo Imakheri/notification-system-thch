@@ -1,13 +1,43 @@
 services:
- mysql-test:
+ test_db:
   image: mysql:8.0
-  container_name: mysql_test_db
+  container_name: notification_manager_test_db
   environment:
-   MYSQL_ROOT_PASSWORD: root_password
-   MYSQL_DATABASE: db_test_notification_manager
+   - MYSQL_DATABASE=notification_manager_test_db
+   - MYSQL_ROOT_PASSWORD=mysql_root_password
   ports:
-    - "3307:3306"
+   - "3307:3306"
   healthcheck:
-   test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-   timeout: 20s
+   test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-pmysql_root_password"]
+   interval: 5s
    retries: 10
+
+ test_db_setup:
+  build: .
+  container_name: notification_manager_test_db_setup
+  command: ./main_db -all
+  depends_on:
+   test_db:
+    condition: service_healthy
+  environment:
+   - DB_NAME=notification_manager_test_db
+   - DB_USER=root
+   - DB_PASSWORD=mysql_root_password
+   - DB_HOST=test_db
+   - DB_PORT=3306
+
+ integration-tests-app:
+  build:
+   context: .
+   target: builder
+  container_name: notifications_manager_integration_tests
+  command: ["go", "test", "./...", "-v"]
+  depends_on:
+   test_db_setup:
+    condition: service_completed_successfully
+  environment:
+   - DB_NAME=notification_manager_test_db
+   - DB_USER=root
+   - DB_PASSWORD=mysql_root_password
+   - DB_HOST=test_db
+   - DB_PORT=3306

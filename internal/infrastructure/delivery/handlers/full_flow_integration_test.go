@@ -40,6 +40,21 @@ func TestE2E_FullFlow(t *testing.T) {
 	ctx, _ := gin.CreateTestContext(w)
 
 	userInput := handler_dtos.CreateUserDTO{
+		Name:        "Charles Dickens",
+		Password:    "Christmas123.",
+		Email:       "charlesd@example.com",
+		Phone:       "0987654321",
+		DeviceToken: "e0d8c7b6a5y4t3r2e1q0",
+	}
+
+	body, _ := json.Marshal(userInput)
+	ctx.Request, _ = http.NewRequest(http.MethodPost, "/users", bytes.NewBuffer(body))
+	ctx.Request.Header.Add("Content-Type", "application/json")
+
+	CreateUserHandler(createUserUseCase)(ctx)
+	assert.Equal(t, http.StatusCreated, w.Code)
+
+	userInput = handler_dtos.CreateUserDTO{
 		Name:        "William Shakespeare",
 		Password:    "Hamlet123.",
 		Email:       "williams@example.com",
@@ -47,7 +62,7 @@ func TestE2E_FullFlow(t *testing.T) {
 		DeviceToken: "0q1e2r3t4y5a6b7c8d9e",
 	}
 
-	body, _ := json.Marshal(userInput)
+	body, _ = json.Marshal(userInput)
 	ctx.Request, _ = http.NewRequest(http.MethodPost, "/users", bytes.NewBuffer(body))
 	ctx.Request.Header.Add("Content-Type", "application/json")
 

@@ -11,7 +11,7 @@ type Config struct {
 	DatabaseName     string
 	DatabaseUser     string
 	DataBasePassword string
-	DatabasePath     string
+	DatabaseHost     string
 	DatabasePort     string
 	SecretJWT        string
 	ApiKey           string
@@ -27,7 +27,7 @@ func Load() *Config {
 		DatabaseName:     getEnv("DB_NAME"),
 		DatabaseUser:     getEnv("DB_USER"),
 		DataBasePassword: getEnv("DB_PASSWORD"),
-		DatabasePath:     getEnv("DB_PATH"),
+		DatabaseHost:     getEnv("DB_HOST"),
 		DatabasePort:     getEnv("DB_PORT"),
 		SecretJWT:        getEnv("SECRET_JWT"),
 		ApiKey:           getEnv("API_KEY"),
@@ -37,7 +37,7 @@ func Load() *Config {
 func getEnv(key string) string {
 	value, ok := os.LookupEnv(key)
 	if !ok {
-		log.Fatal("needed environment variable not found")
+		log.Println("needed environment variable not found")
 	}
 	return value
 }

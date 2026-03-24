@@ -24,7 +24,7 @@ func NewDatabase(cfg *config.Config) *Database {
 		DatabaseName:     cfg.DatabaseName,
 		DatabaseUser:     cfg.DatabaseUser,
 		DataBasePassword: cfg.DataBasePassword,
-		DatabasePath:     cfg.DatabasePath,
+		DatabasePath:     cfg.DatabaseHost,
 		DatabasePort:     cfg.DatabasePort,
 	}
 	db.DatabaseConnection = db.Connect()
@@ -45,16 +45,38 @@ func (db *Database) Connect() *gorm.DB {
 		db.DatabaseName,
 		"?charset=utf8mb4&parseTime=True&loc=Local",
 	)
-	if db, err := gorm.Open(mysql.Open(dns), &gorm.Config{}); err != nil {
-		panic(err)
-	} else {
-		poolConnection, err := db.DB()
-		if err != nil {
-			log.Fatal(err)
+
+	var gormDB *gorm.DB
+	var err error
+
+	for i := 0; i < 10; i++ {
+		log.Printf("Trying to connect to database (Try %d/10)", i)
+
+		gormDB, err = gorm.Open(mysql.Open(dns), &gorm.Config{})
+
+		if err == nil {
+			log.Println("Successfully connected to database")
+			break
 		}
-		poolConnection.SetMaxIdleConns(10)
-		poolConnection.SetMaxOpenConns(100)
-		poolConnection.SetConnMaxLifetime(time.Hour)
-		return db
+
+		log.Printf("Error connecting: %v, Retrying in 3 seconds...", err)
+		time.Sleep(3 * time.Second)
 	}
+
+	if err != nil {
+		log.Fatalf("could not connect to database after 10 attempts: %v", err)
+	}
+
+	poolConnection, err := gormDB.DB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	poolConnection.SetMaxIdleConns(10)
+	poolConnection.SetMaxOpenConns(100)
+	poolConnection.SetConnMaxLifetime(time.Hour)
+
+	db.DatabaseConnection = gormDB
+	return gormDB
+
 }

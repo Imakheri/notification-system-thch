@@ -14,7 +14,7 @@ import (
 // @Description Gets all notifications linked to the authenticated user's ID
 // @Tags notifications
 // @Produce json
-// @Success 200  {object}  []dtos.NotificationResponseDTO "list of notifications"
+// @Success 200  {object}  []dtos.NotificationResponseDTO "List of notifications"
 // @Failure 400  {object}  dtos.ErrorResponseDTO "can not get user id"
 // @Failure 404  {object}  dtos.ErrorResponseDTO "record not found"
 // @Failure 500  {object}  dtos.ErrorResponseDTO "internal server error"

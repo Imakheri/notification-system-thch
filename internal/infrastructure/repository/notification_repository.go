@@ -64,10 +64,6 @@ func (nr *NotificationRepository) DeleteNotificationByID(notificationID uint) (u
 func (nr *NotificationRepository) UpdateNotification(notification entities.Notification) (entities.Notification, error) {
 	notificationModel := dtos.NotificationToModel(notification)
 	result := nr.db.DatabaseConnection.Model(&notificationModel).Where("id = ?", notificationModel.ID).Updates(notificationModel)
-	if result.Error != nil {
-		return entities.Notification{}, result.Error
-	}
-	result = nr.db.DatabaseConnection.First(&notificationModel, notificationModel.ID)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return entities.Notification{}, errors.New("notification not found")
 	}
@@ -80,7 +76,7 @@ func (nr *NotificationRepository) UpdateNotification(notification entities.Notif
 
 func (nr *NotificationRepository) DoesNotificationExistsAndBelongsToUser(userID uint, notificationID uint) (entities.Notification, error) {
 	var notificationModel dtos.NotificationModel
-	result := nr.db.DatabaseConnection.First(&notificationModel, notificationID)
+	result := nr.db.DatabaseConnection.Preload("Recipients").First(&notificationModel, notificationID)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return entities.Notification{}, errors.New("notification not found")
 	}

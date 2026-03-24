@@ -16,7 +16,7 @@ import (
 // @Tags notifications
 // @Produce json
 // @Param id   path      int  true  "Notification ID"
-// @Success 200  {object}  dtos.SuccessfulDeleteResponseDTO "Notification deleted successfully"
+// @Success 200  {object}  dtos.SuccessfulDeleteResponseDTO "notification deleted successfully"
 // @Failure 400  {object}  dtos.ErrorResponseDTO "must enter a valid id"
 // @Failure 404  {object}  dtos.ErrorResponseDTO "record not found"
 // @Failure 500  {object}  dtos.ErrorResponseDTO "can not get user id"

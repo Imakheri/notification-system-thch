@@ -41,7 +41,7 @@ jobs:
           post:
             - /.go_workspace/bin/goveralls -coverprofile=/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
       - store_test_results:
-          path: junit.xml
+          path: /coverage.out
 
 workflows:
   main:

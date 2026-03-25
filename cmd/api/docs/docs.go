@@ -39,10 +39,10 @@ const docTemplate = `{
                 "tags": [
                     "notifications"
                 ],
-                "summary": "Create new notification",
+                "summary": "Create a new notification",
                 "parameters": [
                     {
-                        "description": "New notification data",
+                        "description": "new notification data",
                         "name": "notification",
                         "in": "body",
                         "required": true,
@@ -109,7 +109,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Notification information for update",
+                        "description": "notification information for update",
                         "name": "notification",
                         "in": "body",
                         "required": true,
@@ -173,7 +173,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Notification deleted successfully",
+                        "description": "notification deleted successfully",
                         "schema": {
                             "$ref": "#/definitions/dtos.SuccessfulDeleteResponseDTO"
                         }
@@ -219,7 +219,7 @@ const docTemplate = `{
                 "summary": "List a specific user's notifications",
                 "responses": {
                     "200": {
-                        "description": "list of notifications",
+                        "description": "List of notifications",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -383,7 +383,7 @@ const docTemplate = `{
                 "summary": "Create a new user",
                 "parameters": [
                     {
-                        "description": "New user data",
+                        "description": "new user data",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -436,7 +436,7 @@ const docTemplate = `{
                 "recipients": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dtos.UserIntoCreateNotificationDTO"
+                        "$ref": "#/definitions/dtos.UserIntoNotificationDTO"
                     }
                 },
                 "title": {
@@ -585,7 +585,7 @@ const docTemplate = `{
                 "recipients": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dtos.UserIntoCreateNotificationDTO"
+                        "$ref": "#/definitions/dtos.UserIntoNotificationDTO"
                     }
                 },
                 "title": {
@@ -615,25 +615,12 @@ const docTemplate = `{
                 }
             }
         },
-        "dtos.UserIntoCreateNotificationDTO": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "williams@example.com"
-                }
-            }
-        },
         "dtos.UserIntoNotificationDTO": {
             "type": "object",
             "properties": {
                 "email": {
                     "type": "string",
                     "example": "williams@example.com"
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 20
                 }
             }
         }
@@ -655,7 +642,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "0.1",
-	Host:             "localhost:8080",
+	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Notification Manager System - THC",

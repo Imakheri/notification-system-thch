@@ -10,7 +10,6 @@
         },
         "version": "0.1"
     },
-    "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
         "/notification": {
@@ -33,10 +32,10 @@
                 "tags": [
                     "notifications"
                 ],
-                "summary": "Create new notification",
+                "summary": "Create a new notification",
                 "parameters": [
                     {
-                        "description": "New notification data",
+                        "description": "new notification data",
                         "name": "notification",
                         "in": "body",
                         "required": true,
@@ -103,7 +102,7 @@
                         "required": true
                     },
                     {
-                        "description": "Notification information for update",
+                        "description": "notification information for update",
                         "name": "notification",
                         "in": "body",
                         "required": true,
@@ -167,7 +166,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Notification deleted successfully",
+                        "description": "notification deleted successfully",
                         "schema": {
                             "$ref": "#/definitions/dtos.SuccessfulDeleteResponseDTO"
                         }
@@ -213,7 +212,7 @@
                 "summary": "List a specific user's notifications",
                 "responses": {
                     "200": {
-                        "description": "list of notifications",
+                        "description": "List of notifications",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -377,7 +376,7 @@
                 "summary": "Create a new user",
                 "parameters": [
                     {
-                        "description": "New user data",
+                        "description": "new user data",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -430,7 +429,7 @@
                 "recipients": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dtos.UserIntoCreateNotificationDTO"
+                        "$ref": "#/definitions/dtos.UserIntoNotificationDTO"
                     }
                 },
                 "title": {
@@ -579,7 +578,7 @@
                 "recipients": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dtos.UserIntoCreateNotificationDTO"
+                        "$ref": "#/definitions/dtos.UserIntoNotificationDTO"
                     }
                 },
                 "title": {
@@ -609,25 +608,12 @@
                 }
             }
         },
-        "dtos.UserIntoCreateNotificationDTO": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "williams@example.com"
-                }
-            }
-        },
         "dtos.UserIntoNotificationDTO": {
             "type": "object",
             "properties": {
                 "email": {
                     "type": "string",
                     "example": "williams@example.com"
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 20
                 }
             }
         }

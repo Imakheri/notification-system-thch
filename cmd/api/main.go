@@ -23,7 +23,6 @@ import (
 // @contact.name   Julián Rentería
 // @contact.email   imakheri@gmail.com
 
-// @host      localhost:8080
 // @BasePath  /api/v1
 
 // @securityDefinitions.apikey BearerAuth

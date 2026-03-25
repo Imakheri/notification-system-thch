@@ -10,7 +10,7 @@ definitions:
         type: string
       recipients:
         items:
-          $ref: '#/definitions/dtos.UserIntoCreateNotificationDTO'
+          $ref: '#/definitions/dtos.UserIntoNotificationDTO'
         type: array
       title:
         example: Example Notification
@@ -114,7 +114,7 @@ definitions:
         type: string
       recipients:
         items:
-          $ref: '#/definitions/dtos.UserIntoCreateNotificationDTO'
+          $ref: '#/definitions/dtos.UserIntoNotificationDTO'
         type: array
       title:
         example: New Example Notification Title
@@ -135,22 +135,12 @@ definitions:
         example: "0129834765"
         type: string
     type: object
-  dtos.UserIntoCreateNotificationDTO:
-    properties:
-      email:
-        example: williams@example.com
-        type: string
-    type: object
   dtos.UserIntoNotificationDTO:
     properties:
       email:
         example: williams@example.com
         type: string
-      id:
-        example: 20
-        type: integer
     type: object
-host: localhost:8080
 info:
   contact:
     email: imakheri@gmail.com
@@ -166,7 +156,7 @@ paths:
       - application/json
       description: Create a notification linked to the authenticated user
       parameters:
-      - description: New notification data
+      - description: new notification data
         in: body
         name: notification
         required: true
@@ -194,7 +184,7 @@ paths:
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
-      summary: Create new notification
+      summary: Create a new notification
       tags:
       - notifications
   /notification/{id}:
@@ -211,7 +201,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Notification deleted successfully
+          description: notification deleted successfully
           schema:
             $ref: '#/definitions/dtos.SuccessfulDeleteResponseDTO'
         "400":
@@ -243,7 +233,7 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Notification information for update
+      - description: notification information for update
         in: body
         name: notification
         required: true
@@ -281,7 +271,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: list of notifications
+          description: List of notifications
           schema:
             items:
               $ref: '#/definitions/dtos.NotificationResponseDTO'
@@ -383,7 +373,7 @@ paths:
       - application/json
       description: Register a new user in the system by providing their basic information
       parameters:
-      - description: New user data
+      - description: new user data
         in: body
         name: user
         required: true

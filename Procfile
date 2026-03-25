@@ -1,1 +1,1 @@
-web: api
+web: ./bin/db -all && ./bin/api

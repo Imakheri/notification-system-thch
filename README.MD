@@ -27,7 +27,7 @@ Julián Imá Kherí Rentería
 
 ### Deployed app running on Heroku
 
-- [API Swagger](https://imakheri-notification-system.herokuapp.com/swagger/index.html)
+- [API Swagger](https://imakheri-notification-system-cb1c4c64788d.herokuapp.com/swagger/index.html)
 
 ### Table of contents
 

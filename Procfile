@@ -1,1 +1,1 @@
-web: ./bin/db -all && ./bin/api
+web: sh -c "./bin/db -all && ./bin/api"

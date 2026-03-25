@@ -25,23 +25,29 @@ Julián Imá Kherí Rentería
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/circleci/AoMkXQmCK1qb1Ns4CwHguW/DARMbqK4h4EKBtmTqw8kSv/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/AoMkXQmCK1qb1Ns4CwHguW/DARMbqK4h4EKBtmTqw8kSv/tree/main) [![Coverage Status](https://coveralls.io/repos/github/Imakheri/notification-system-thch/badge.svg?branch=main)](https://coveralls.io/github/Imakheri/notification-system-thch?branch=main)
 
+### Deployed app running on Heroku
+
+- [API Swagger](https://immense-mountain-42423-ffb8f67b2fa8.herokuapp.com/swagger/index.html)
+
 ### Table of contents
 
 1. [Features](#features)
 2. [Author](#author)
 3. [Badges](#badges)
-4. [Technologies](#technologies)
-5. [Routes](#routes)
-6. [Pre-requisites](#pre-requisites)
-7. [How to run app](#how-to-run-app)
-8. [How to run tests](#how-to-run-tests)
-9. [Areas to improve](#areas-to-improve)
-10. [Decisions made](#decisions-made)
-11. [Development Tools](#development-tools)
+4. [Deployed app running on Heroku](#deployed-app-running-on-heroku)
+5. [Technologies](#technologies)
+6. [Routes](#routes)
+7. [Pre-requisites](#pre-requisites)
+8. [How to run app](#how-to-run-app)
+9. [Authentication & Endpoints](#authentication--endpoints)
+9. [How to run tests](#how-to-run-tests)
+10. [Areas to improve](#areas-to-improve)
+11. [Decisions made](#decisions-made)
+12. [Development Tools](#development-tools)
     1. [Database migrations script](#database-migrations-script)
     2. [Environment variables](#environment-variables)
     3. [Mocks](#mocks)
-12. [Deployment](#deployment)
+13. [Deployment](#deployment)
 
 ### Technologies
 
@@ -54,7 +60,7 @@ Julián Imá Kherí Rentería
 
 ### Routes
 
-- [API Swagger](https://localhost:8080/swagger/index.html)
+- Local: [API Swagger](https://localhost:8080/swagger/index.html)
 
 ### Pre-requisites
 
@@ -72,6 +78,22 @@ chmod 711 ./up_dev.sh
 2. Go to swagger and test the app or consume API through curl or postman
 
 3. Press Control + C to stop the app.
+
+### Authentication & Endpoints
+
+The application provides **7 endpoints** categorized by their access requirements:
+
+Public Access: The `Create User` and `Login` endpoints require an **API Key** managed by the system administrator. This must be included in the request header as:
+````
+api_key: <your_admin_key>
+````
+User Authenticated Access: The remaining endpoints are protected and require a JSON Web Token (JWT), which is generated upon a successful login.
+
+Note: All protected requests must include the token in the Authorization header using the Bearer scheme:
+````
+Authorization: Bearer <your_jwt_token>
+````
+
 
 ### How to run tests
 
@@ -142,4 +164,7 @@ make mocks
 ````
 
 ### Deployment
+
+This project uses CircleCI for remote builds and automated testing. Upon every push, the platform verifies the build integrity and ensures all tests pass.
+Once validated, code coverage data is automatically transmitted to Coveralls for detailed analysis and reporting.
 

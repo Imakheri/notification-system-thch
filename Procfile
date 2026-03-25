@@ -1,0 +1,1 @@
+web: go build -o server ./cmd/api/main.go && ./server

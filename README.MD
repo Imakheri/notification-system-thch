@@ -27,7 +27,7 @@ Julián Imá Kherí Rentería
 
 ### Deployed app running on Heroku
 
-- [API Swagger](https://immense-mountain-42423-ffb8f67b2fa8.herokuapp.com/swagger/index.html)
+- [API Swagger](https://imakheri-notification-system.herokuapp.com/swagger/index.html)
 
 ### Table of contents
 

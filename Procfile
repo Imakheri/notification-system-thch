@@ -1,1 +1,2 @@
-web: sh -c "./bin/db -all && ./bin/api"
+release: ./bin/db -all
+web: ./bin/api
